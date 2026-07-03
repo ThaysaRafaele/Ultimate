@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { POSITIONS } from "@/lib/teams";
+import { POSITIONS, TEAMS } from "@/lib/teams";
 import { formatPhoneBR } from "@/lib/format";
 import {
   isValidBRPhone,
@@ -17,6 +17,7 @@ type Athlete = typeof athletes.$inferSelect;
 
 type FormValues = {
   name: string;
+  teams: string[];
   email: string;
   contact: string;
   birthDate: string;
@@ -24,9 +25,10 @@ type FormValues = {
 };
 
 function validateForm(values: FormValues): string | null {
-  const { name, email, contact, birthDate, entryDate } = values;
+  const { name, teams, email, contact, birthDate, entryDate } = values;
 
   if (!name.trim()) return "Informe o nome completo do atleta.";
+  if (teams.length === 0) return "Selecione ao menos uma equipe.";
   if (!entryDate) return "Informe a data de entrada no time.";
   if (email.trim() && !isValidEmail(email.trim())) return "Informe um e-mail válido.";
   if (contact.trim() && !isValidBRPhone(contact)) return "Informe um telefone válido, com DDD.";
@@ -46,19 +48,18 @@ function localPhone(contact: string | null): string {
 export function AthleteFormModal({
   mode,
   athlete,
-  teamId,
-  teamLabel,
+  defaultTeamId,
   onClose,
   onSaved,
 }: Readonly<{
   mode: "create" | "edit";
   athlete?: Athlete;
-  teamId: string;
-  teamLabel: string;
+  defaultTeamId: string;
   onClose: () => void;
   onSaved: () => void;
 }>) {
   const [name, setName] = useState(athlete?.name ?? "");
+  const [selectedTeams, setSelectedTeams] = useState<string[]>(athlete?.teams ?? [defaultTeamId]);
   const [email, setEmail] = useState(athlete?.email ?? "");
   const [contact, setContact] = useState(localPhone(athlete?.contact ?? null));
   const [position, setPosition] = useState<string>(athlete?.position ?? POSITIONS[0]);
@@ -72,6 +73,12 @@ export function AthleteFormModal({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const contactInputRef = useRef<HTMLInputElement>(null);
+
+  function toggleTeam(teamId: string) {
+    setSelectedTeams((prev) =>
+      prev.includes(teamId) ? prev.filter((t) => t !== teamId) : [...prev, teamId]
+    );
+  }
 
   function onPickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
@@ -107,7 +114,7 @@ export function AthleteFormModal({
     e.preventDefault();
     setError(null);
 
-    const validationError = validateForm({ name, email, contact, birthDate, entryDate });
+    const validationError = validateForm({ name, teams: selectedTeams, email, contact, birthDate, entryDate });
     if (validationError) return setError(validationError);
 
     setSaving(true);
@@ -129,7 +136,7 @@ export function AthleteFormModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
-          team: teamId,
+          teams: selectedTeams,
           position,
           number: number ? Number(number) : null,
           photoUrl: finalPhotoUrl,
@@ -166,11 +173,8 @@ export function AthleteFormModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-ink-deep px-[26px] py-5 flex items-center justify-between">
-          <div>
-            <div className="font-heading font-bold text-2xl uppercase text-white">
-              {mode === "create" ? "Novo atleta" : "Editar atleta"}
-            </div>
-            <div className="text-xs text-muted-1">{teamLabel}</div>
+          <div className="font-heading font-bold text-2xl uppercase text-white">
+            {mode === "create" ? "Novo atleta" : "Editar atleta"}
           </div>
           <button
             onClick={onClose}
@@ -222,6 +226,23 @@ export function AthleteFormModal({
             placeholder="Ex.: João Silva"
             className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] mb-4 text-zinc-800"
           />
+
+          <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
+            Times (pode marcar mais de um)
+          </label>
+          <div className="w-full border-[1.5px] border-border-input rounded-lg px-3.5 py-3 mb-4 grid grid-cols-2 gap-x-3 gap-y-2">
+            {TEAMS.map((t) => (
+              <label key={t.id} className="flex items-center gap-2 text-[14px] text-zinc-800 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedTeams.includes(t.id)}
+                  onChange={() => toggleTeam(t.id)}
+                  className="accent-brand-red w-4 h-4"
+                />
+                {t.label}
+              </label>
+            ))}
+          </div>
 
           <div className="flex gap-3.5 mb-4">
             <div className="flex-1">

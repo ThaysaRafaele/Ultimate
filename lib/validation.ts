@@ -42,13 +42,21 @@ export function withCountryCode(localPhone: string): string {
 
 type AthletePayload = {
   name?: unknown;
-  team?: unknown;
+  teams?: unknown;
   position?: unknown;
   email?: unknown;
   contact?: unknown;
   birthDate?: unknown;
   entryDate?: unknown;
 };
+
+function isValidTeamList(teams: unknown, teamIds: readonly string[]): teams is string[] {
+  return (
+    Array.isArray(teams) &&
+    teams.length > 0 &&
+    teams.every((t) => typeof t === "string" && teamIds.includes(t))
+  );
+}
 
 // Shared by POST /api/athletes and PUT /api/athletes/[id] so both entry
 // points enforce the same rules server-side (client-side checks in
@@ -58,10 +66,10 @@ export function validateAthletePayload(
   teamIds: readonly string[],
   positions: readonly string[]
 ): string | null {
-  const { name, team, position, email, contact, birthDate, entryDate } = body;
+  const { name, teams, position, email, contact, birthDate, entryDate } = body;
 
   if (typeof name !== "string" || name.trim() === "") return "Nome é obrigatório.";
-  if (typeof team !== "string" || !teamIds.includes(team)) return "Equipe inválida.";
+  if (!isValidTeamList(teams, teamIds)) return "Selecione ao menos uma equipe válida.";
   if (typeof position !== "string" || !positions.includes(position)) return "Posição inválida.";
   if (typeof entryDate !== "string" || entryDate.trim() === "") return "Data de entrada é obrigatória.";
   if (typeof email === "string" && email && !isValidEmail(email)) return "E-mail inválido.";

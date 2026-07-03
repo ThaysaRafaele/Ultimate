@@ -11,8 +11,7 @@ type Athlete = typeof athletes.$inferSelect;
 export function AthletesGrid({
   athletes,
   teamId,
-  teamLabel,
-}: Readonly<{ athletes: Athlete[]; teamId: string; teamLabel: string }>) {
+}: Readonly<{ athletes: Athlete[]; teamId: string }>) {
   const [editing, setEditing] = useState<Athlete | null>(null);
   const router = useRouter();
 
@@ -27,8 +26,7 @@ export function AthletesGrid({
         <AthleteFormModal
           mode="edit"
           athlete={editing}
-          teamId={teamId}
-          teamLabel={teamLabel}
+          defaultTeamId={teamId}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);

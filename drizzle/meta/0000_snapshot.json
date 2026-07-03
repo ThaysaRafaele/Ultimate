@@ -1,5 +1,5 @@
 {
-  "id": "c7a96205-5701-4c81-a3fb-29332a308470",
+  "id": "2551223e-e5b3-40cf-8cda-d40a817e9f9a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -20,9 +20,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "team": {
-          "name": "team",
-          "type": "text",
+        "teams": {
+          "name": "teams",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": true
         },

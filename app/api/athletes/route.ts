@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, asc } from "drizzle-orm";
+import { arrayContains, asc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { athletes } from "@/lib/schema";
 import { TEAMS, POSITIONS } from "@/lib/teams";
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const team = request.nextUrl.searchParams.get("team");
 
   const rows = team
-    ? await db.select().from(athletes).where(eq(athletes.team, team)).orderBy(asc(athletes.name))
+    ? await db.select().from(athletes).where(arrayContains(athletes.teams, [team])).orderBy(asc(athletes.name))
     : await db.select().from(athletes).orderBy(asc(athletes.name));
 
   return NextResponse.json(rows);
@@ -24,13 +24,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
-  const { name, team, position, number, photoUrl, email, contact, birthDate, entryDate } = body;
+  const { name, teams, position, number, photoUrl, email, contact, birthDate, entryDate } = body;
 
   const [created] = await db
     .insert(athletes)
     .values({
       name: name.trim(),
-      team,
+      teams,
       position,
       number: number ? Number(number) : null,
       photoUrl: photoUrl || null,

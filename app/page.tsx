@@ -1,4 +1,4 @@
-import { eq, asc } from "drizzle-orm";
+import { arrayContains, asc } from "drizzle-orm";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
@@ -19,7 +19,7 @@ export default async function AthletesPage({
   const teamAthletes = await db
     .select()
     .from(athletes)
-    .where(eq(athletes.team, teamId))
+    .where(arrayContains(athletes.teams, [teamId]))
     .orderBy(asc(athletes.name));
 
   return (
@@ -44,7 +44,7 @@ export default async function AthletesPage({
               >
                 Importar atletas
               </Link>
-              <NewAthleteButton teamId={teamId} teamLabel={teamLabel(teamId)} />
+              <NewAthleteButton teamId={teamId} />
             </div>
           </div>
 
@@ -62,7 +62,7 @@ export default async function AthletesPage({
               Nenhum atleta cadastrado ainda.
             </div>
           ) : (
-            <AthletesGrid athletes={teamAthletes} teamId={teamId} teamLabel={teamLabel(teamId)} />
+            <AthletesGrid athletes={teamAthletes} teamId={teamId} />
           )}
         </div>
       </main>

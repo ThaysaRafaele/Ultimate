@@ -20,13 +20,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
-  const { name, team, position, number, photoUrl, email, contact, birthDate, entryDate } = body;
+  const { name, teams, position, number, photoUrl, email, contact, birthDate, entryDate } = body;
 
   const [updated] = await db
     .update(athletes)
     .set({
       name: name.trim(),
-      team,
+      teams,
       position,
       number: number ? Number(number) : null,
       photoUrl: photoUrl || null,
