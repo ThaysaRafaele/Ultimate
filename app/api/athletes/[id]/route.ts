@@ -1,21 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, asc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { athletes } from "@/lib/schema";
 import { TEAMS, POSITIONS } from "@/lib/teams";
 import { validateAthletePayload } from "@/lib/validation";
 
-export async function GET(request: NextRequest) {
-  const team = request.nextUrl.searchParams.get("team");
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const athleteId = Number(id);
+  if (!Number.isInteger(athleteId)) {
+    return NextResponse.json({ error: "Atleta inválido." }, { status: 400 });
+  }
 
-  const rows = team
-    ? await db.select().from(athletes).where(eq(athletes.team, team)).orderBy(asc(athletes.name))
-    : await db.select().from(athletes).orderBy(asc(athletes.name));
-
-  return NextResponse.json(rows);
-}
-
-export async function POST(request: NextRequest) {
   const body = await request.json();
 
   const teamIds = TEAMS.map((t) => t.id);
@@ -26,9 +22,9 @@ export async function POST(request: NextRequest) {
 
   const { name, team, position, number, photoUrl, email, contact, birthDate, entryDate } = body;
 
-  const [created] = await db
-    .insert(athletes)
-    .values({
+  const [updated] = await db
+    .update(athletes)
+    .set({
       name: name.trim(),
       team,
       position,
@@ -39,7 +35,12 @@ export async function POST(request: NextRequest) {
       birthDate: birthDate || null,
       entryDate,
     })
+    .where(eq(athletes.id, athleteId))
     .returning();
 
-  return NextResponse.json(created, { status: 201 });
+  if (!updated) {
+    return NextResponse.json({ error: "Atleta não encontrado." }, { status: 404 });
+  }
+
+  return NextResponse.json(updated);
 }

@@ -1,7 +1,9 @@
 import { eq, asc } from "drizzle-orm";
+import Link from "next/link";
 import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
-import { AthleteCard } from "@/components/AthleteCard";
+import { AthletesGrid } from "@/components/AthletesGrid";
+import { NewAthleteButton } from "@/components/NewAthleteButton";
 import { DEFAULT_TEAM_ID, teamLabel } from "@/lib/teams";
 import { db } from "@/lib/db";
 import { athletes } from "@/lib/schema";
@@ -25,7 +27,7 @@ export default async function AthletesPage({
       <Header team={teamId} />
       <NavBar />
       <main className="flex-1 px-10 py-8 pb-14">
-        <div className="max-w-[1180px] mx-auto">
+        <div className="max-w-295 mx-auto">
           <div className="flex items-end justify-between mb-6">
             <div>
               <div className="font-heading font-semibold text-[13px] tracking-[0.24em] text-brand-red uppercase">
@@ -36,17 +38,18 @@ export default async function AthletesPage({
               </h1>
             </div>
             <div className="flex gap-3">
-              <button className="h-[46px] px-5 bg-white text-ink border-[1.5px] border-border-input rounded-lg font-bold text-sm uppercase tracking-[0.04em] cursor-pointer hover:border-ink">
+              <Link
+                href={`/importar?team=${teamId}`}
+                className="h-11.5 px-5 bg-white text-ink border-[1.5px] border-border-input rounded-lg font-bold text-sm uppercase tracking-[0.04em] cursor-pointer hover:border-ink flex items-center"
+              >
                 Importar atletas
-              </button>
-              <button className="h-[46px] px-[22px] bg-brand-red text-white border-none rounded-lg font-bold text-sm uppercase tracking-[0.04em] cursor-pointer hover:bg-brand-red-hover">
-                + Novo atleta
-              </button>
+              </Link>
+              <NewAthleteButton teamId={teamId} teamLabel={teamLabel(teamId)} />
             </div>
           </div>
 
           <div className="flex gap-3.5 mb-6">
-            <div className="bg-white border border-border-light rounded-[10px] px-[22px] py-4 flex-1">
+            <div className="bg-white border border-border-light rounded-[10px] px-5.5 py-4 flex-1">
               <div className="text-xs uppercase tracking-[0.08em] text-muted-2 font-semibold">
                 Total no elenco
               </div>
@@ -59,11 +62,7 @@ export default async function AthletesPage({
               Nenhum atleta cadastrado ainda.
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-4">
-              {teamAthletes.map((athlete) => (
-                <AthleteCard key={athlete.id} athlete={athlete} />
-              ))}
-            </div>
+            <AthletesGrid athletes={teamAthletes} teamId={teamId} teamLabel={teamLabel(teamId)} />
           )}
         </div>
       </main>
