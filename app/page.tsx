@@ -4,7 +4,8 @@ import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
 import { AthletesGrid } from "@/components/AthletesGrid";
 import { NewAthleteButton } from "@/components/NewAthleteButton";
-import { DEFAULT_TEAM_ID, teamLabel } from "@/lib/teams";
+import { findTeamLabel } from "@/lib/teams";
+import { getAllTeams } from "@/lib/teams-repo";
 import { db } from "@/lib/db";
 import { athletes } from "@/lib/schema";
 
@@ -14,7 +15,25 @@ export default async function AthletesPage({
   searchParams: Promise<{ team?: string }>;
 }>) {
   const { team } = await searchParams;
-  const teamId = team ?? DEFAULT_TEAM_ID;
+
+  const allTeams = await getAllTeams();
+  const activeTeams = allTeams.filter((t) => t.active);
+
+  if (activeTeams.length === 0) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 bg-zinc-100">
+        <p className="text-muted-2">Nenhuma categoria ativa ainda.</p>
+        <Link
+          href="/times"
+          className="h-11.5 px-5 bg-brand-red text-white rounded-lg font-bold text-sm uppercase flex items-center"
+        >
+          Cadastrar categoria
+        </Link>
+      </div>
+    );
+  }
+
+  const teamId = activeTeams.some((t) => t.id === team) ? team! : activeTeams[0].id;
 
   const teamAthletes = await db
     .select()
@@ -24,14 +43,14 @@ export default async function AthletesPage({
 
   return (
     <div className="flex-1 flex flex-col">
-      <Header team={teamId} />
+      <Header team={teamId} teams={activeTeams} />
       <NavBar />
       <main className="flex-1 px-10 py-8 pb-14">
         <div className="max-w-295 mx-auto">
           <div className="flex items-end justify-between mb-6">
             <div>
               <div className="font-heading font-semibold text-[13px] tracking-[0.24em] text-brand-red uppercase">
-                {teamLabel(teamId)}
+                {findTeamLabel(allTeams, teamId)}
               </div>
               <h1 className="font-heading font-bold text-[40px] uppercase mt-0.5 text-ink">
                 Atletas cadastrados
@@ -44,7 +63,7 @@ export default async function AthletesPage({
               >
                 Importar atletas
               </Link>
-              <NewAthleteButton teamId={teamId} />
+              <NewAthleteButton teamId={teamId} teams={allTeams} />
             </div>
           </div>
 
@@ -62,7 +81,7 @@ export default async function AthletesPage({
               Nenhum atleta cadastrado ainda.
             </div>
           ) : (
-            <AthletesGrid athletes={teamAthletes} teamId={teamId} />
+            <AthletesGrid athletes={teamAthletes} teamId={teamId} teams={allTeams} />
           )}
         </div>
       </main>

@@ -1,4 +1,11 @@
-import { pgTable, serial, text, integer, date, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, date, timestamp, boolean } from "drizzle-orm/pg-core";
+
+export const teams = pgTable("teams", {
+  id: text("id").primaryKey(),
+  label: text("label").notNull(),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
 export const athletes = pgTable("athletes", {
   id: serial("id").primaryKey(),

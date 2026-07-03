@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { POSITIONS, TEAMS } from "@/lib/teams";
+import { POSITIONS } from "@/lib/teams";
+import type { Team } from "@/lib/teams";
 import { formatPhoneBR } from "@/lib/format";
 import {
   isValidBRPhone,
@@ -48,12 +49,14 @@ function localPhone(contact: string | null): string {
 export function AthleteFormModal({
   mode,
   athlete,
+  teams,
   defaultTeamId,
   onClose,
   onSaved,
 }: Readonly<{
   mode: "create" | "edit";
   athlete?: Athlete;
+  teams: Team[];
   defaultTeamId: string;
   onClose: () => void;
   onSaved: () => void;
@@ -231,8 +234,13 @@ export function AthleteFormModal({
             Times (pode marcar mais de um)
           </label>
           <div className="w-full border-[1.5px] border-border-input rounded-lg px-3.5 py-3 mb-4 grid grid-cols-2 gap-x-3 gap-y-2">
-            {TEAMS.map((t) => (
-              <label key={t.id} className="flex items-center gap-2 text-[14px] text-zinc-800 cursor-pointer">
+            {teams.map((t) => (
+              <label
+                key={t.id}
+                className={`flex items-center gap-2 text-[14px] cursor-pointer ${
+                  t.active ? "text-zinc-800" : "text-muted-2"
+                }`}
+              >
                 <input
                   type="checkbox"
                   checked={selectedTeams.includes(t.id)}
@@ -240,6 +248,7 @@ export function AthleteFormModal({
                   className="accent-brand-red w-4 h-4"
                 />
                 {t.label}
+                {!t.active && " (inativo)"}
               </label>
             ))}
           </div>

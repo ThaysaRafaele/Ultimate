@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import { AthleteCard } from "@/components/AthleteCard";
 import { AthleteFormModal } from "@/components/AthleteFormModal";
 import type { athletes } from "@/lib/schema";
+import type { Team } from "@/lib/teams";
 
 type Athlete = typeof athletes.$inferSelect;
 
 export function AthletesGrid({
   athletes,
   teamId,
-}: Readonly<{ athletes: Athlete[]; teamId: string }>) {
+  teams,
+}: Readonly<{ athletes: Athlete[]; teamId: string; teams: Team[] }>) {
   const [editing, setEditing] = useState<Athlete | null>(null);
   const router = useRouter();
 
@@ -26,6 +28,7 @@ export function AthletesGrid({
         <AthleteFormModal
           mode="edit"
           athlete={editing}
+          teams={teams}
           defaultTeamId={teamId}
           onClose={() => setEditing(null)}
           onSaved={() => {
