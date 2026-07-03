@@ -23,7 +23,7 @@ function slugify(label: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export async function createTeam(label: string): Promise<TeamRow> {
+export async function createTeam(label: string, maxAge?: number | null): Promise<TeamRow> {
   const base = slugify(label) || "time";
   const existing = await getAllTeams();
   const existingIds = new Set(existing.map((t) => t.id));
@@ -35,7 +35,10 @@ export async function createTeam(label: string): Promise<TeamRow> {
     suffix += 1;
   }
 
-  const [created] = await db.insert(teams).values({ id, label: label.trim(), active: true }).returning();
+  const [created] = await db
+    .insert(teams)
+    .values({ id, label: label.trim(), active: true, maxAge: maxAge ?? null })
+    .returning();
   return created;
 }
 

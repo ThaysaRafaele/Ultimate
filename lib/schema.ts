@@ -4,6 +4,7 @@ export const teams = pgTable("teams", {
   id: text("id").primaryKey(),
   label: text("label").notNull(),
   active: boolean("active").notNull().default(true),
+  maxAge: integer("max_age"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

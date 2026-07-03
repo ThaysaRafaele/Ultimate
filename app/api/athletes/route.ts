@@ -20,8 +20,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
 
   const allTeams = await getAllTeams();
-  const teamIds = allTeams.map((t) => t.id);
-  const validationError = validateAthletePayload(body, teamIds, POSITIONS);
+  const validationError = validateAthletePayload(body, allTeams, POSITIONS);
   if (validationError) {
     return NextResponse.json({ error: validationError }, { status: 400 });
   }

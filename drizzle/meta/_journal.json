@@ -15,6 +15,13 @@
       "when": 1783108485775,
       "tag": "0001_square_vertigo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783109954385,
+      "tag": "0002_organic_steve_rogers",
+      "breakpoints": true
     }
   ]
 }

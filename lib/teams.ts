@@ -2,6 +2,7 @@ export type Team = {
   id: string;
   label: string;
   active: boolean;
+  maxAge: number | null;
 };
 
 export function findTeamLabel(teams: readonly { id: string; label: string }[], teamId: string): string {

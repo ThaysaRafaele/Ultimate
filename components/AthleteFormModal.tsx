@@ -5,6 +5,7 @@ import { POSITIONS } from "@/lib/teams";
 import type { Team } from "@/lib/teams";
 import { formatPhoneBR } from "@/lib/format";
 import {
+  ageLimitError,
   isValidBRPhone,
   isValidEmail,
   maxBirthDateISO,
@@ -25,7 +26,7 @@ type FormValues = {
   entryDate: string;
 };
 
-function validateForm(values: FormValues): string | null {
+function validateForm(values: FormValues, teamList: Team[]): string | null {
   const { name, teams, email, contact, birthDate, entryDate } = values;
 
   if (!name.trim()) return "Informe o nome completo do atleta.";
@@ -39,7 +40,7 @@ function validateForm(values: FormValues): string | null {
   if (entryDate > todayISO()) return "Data de entrada não pode ser no futuro.";
   if (birthDate && birthDate >= entryDate) return "Data de nascimento deve ser anterior à data de entrada.";
 
-  return null;
+  return ageLimitError(teams, birthDate || null, teamList);
 }
 
 function localPhone(contact: string | null): string {
@@ -117,7 +118,10 @@ export function AthleteFormModal({
     e.preventDefault();
     setError(null);
 
-    const validationError = validateForm({ name, teams: selectedTeams, email, contact, birthDate, entryDate });
+    const validationError = validateForm(
+      { name, teams: selectedTeams, email, contact, birthDate, entryDate },
+      teams
+    );
     if (validationError) return setError(validationError);
 
     setSaving(true);
@@ -248,6 +252,7 @@ export function AthleteFormModal({
                   className="accent-brand-red w-4 h-4"
                 />
                 {t.label}
+                {t.maxAge != null && ` (até ${t.maxAge} anos)`}
                 {!t.active && " (inativo)"}
               </label>
             ))}
