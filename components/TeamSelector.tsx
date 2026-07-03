@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { TEAMS } from "@/lib/teams";
+import type { Team } from "@/lib/teams";
 
-export function TeamSelector({ value }: { value: string }) {
+export function TeamSelector({ value, teams }: Readonly<{ value: string; teams: Team[] }>) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -24,7 +24,7 @@ export function TeamSelector({ value }: { value: string }) {
         onChange={onChange}
         className="h-[38px] bg-charcoal text-white border border-zinc-border rounded-lg px-3 font-bold text-sm cursor-pointer"
       >
-        {TEAMS.map((t) => (
+        {teams.map((t) => (
           <option key={t.id} value={t.id}>
             {t.label}
           </option>

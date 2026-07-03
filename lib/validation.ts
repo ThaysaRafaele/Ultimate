@@ -25,6 +25,17 @@ export function maxBirthDateISO(): string {
   return toLocalISODate(d);
 }
 
+// Completed years between two ISO dates (YYYY-MM-DD), not a plain year
+// subtraction — someone born 2008-07-10 isn't 18 until that date in 2026.
+export function ageInYears(birthDateISO: string, atISO: string): number {
+  const [by, bm, bd] = birthDateISO.split("-").map(Number);
+  const [ay, am, ad] = atISO.split("-").map(Number);
+
+  let age = ay - by;
+  if (am < bm || (am === bm && ad < bd)) age -= 1;
+  return age;
+}
+
 const BR_COUNTRY_CODE_RE = /^\+55\s*/;
 
 // Accepts either the local part ("(67) 99123-4567") or the full stored
@@ -50,6 +61,8 @@ type AthletePayload = {
   entryDate?: unknown;
 };
 
+export type TeamAgeRule = { id: string; label: string; maxAge: number | null };
+
 function isValidTeamList(teams: unknown, teamIds: readonly string[]): teams is string[] {
   return (
     Array.isArray(teams) &&
@@ -58,15 +71,37 @@ function isValidTeamList(teams: unknown, teamIds: readonly string[]): teams is s
   );
 }
 
+export function ageLimitError(
+  selectedTeams: string[],
+  birthDate: string | null,
+  teamList: readonly TeamAgeRule[]
+): string | null {
+  const capped = teamList.filter((t) => selectedTeams.includes(t.id) && t.maxAge != null);
+  if (capped.length === 0) return null;
+
+  if (!birthDate) {
+    return `Informe a data de nascimento para vincular o atleta a ${capped[0].label}.`;
+  }
+
+  const age = ageInYears(birthDate, todayISO());
+  const exceeded = capped.find((t) => age > (t.maxAge as number));
+  if (exceeded) {
+    return `Atleta com ${age} anos não pode ser vinculado a ${exceeded.label} (máximo ${exceeded.maxAge} anos completos).`;
+  }
+
+  return null;
+}
+
 // Shared by POST /api/athletes and PUT /api/athletes/[id] so both entry
 // points enforce the same rules server-side (client-side checks in
 // AthleteFormModal can't be trusted alone).
 export function validateAthletePayload(
   body: AthletePayload,
-  teamIds: readonly string[],
+  teamList: readonly TeamAgeRule[],
   positions: readonly string[]
 ): string | null {
   const { name, teams, position, email, contact, birthDate, entryDate } = body;
+  const teamIds = teamList.map((t) => t.id);
 
   if (typeof name !== "string" || name.trim() === "") return "Nome é obrigatório.";
   if (!isValidTeamList(teams, teamIds)) return "Selecione ao menos uma equipe válida.";
@@ -81,6 +116,9 @@ export function validateAthletePayload(
   if (typeof birthDate === "string" && birthDate && birthDate >= entryDate) {
     return "Data de nascimento deve ser anterior à data de entrada.";
   }
+
+  const ageError = ageLimitError(teams, (birthDate as string) || null, teamList);
+  if (ageError) return ageError;
 
   return null;
 }

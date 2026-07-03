@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { POSITIONS, TEAMS } from "@/lib/teams";
+import { POSITIONS } from "@/lib/teams";
+import type { Team } from "@/lib/teams";
 import { formatPhoneBR } from "@/lib/format";
 import {
+  ageLimitError,
   isValidBRPhone,
   isValidEmail,
   maxBirthDateISO,
@@ -24,7 +26,7 @@ type FormValues = {
   entryDate: string;
 };
 
-function validateForm(values: FormValues): string | null {
+function validateForm(values: FormValues, teamList: Team[]): string | null {
   const { name, teams, email, contact, birthDate, entryDate } = values;
 
   if (!name.trim()) return "Informe o nome completo do atleta.";
@@ -38,7 +40,7 @@ function validateForm(values: FormValues): string | null {
   if (entryDate > todayISO()) return "Data de entrada não pode ser no futuro.";
   if (birthDate && birthDate >= entryDate) return "Data de nascimento deve ser anterior à data de entrada.";
 
-  return null;
+  return ageLimitError(teams, birthDate || null, teamList);
 }
 
 function localPhone(contact: string | null): string {
@@ -48,12 +50,14 @@ function localPhone(contact: string | null): string {
 export function AthleteFormModal({
   mode,
   athlete,
+  teams,
   defaultTeamId,
   onClose,
   onSaved,
 }: Readonly<{
   mode: "create" | "edit";
   athlete?: Athlete;
+  teams: Team[];
   defaultTeamId: string;
   onClose: () => void;
   onSaved: () => void;
@@ -114,7 +118,10 @@ export function AthleteFormModal({
     e.preventDefault();
     setError(null);
 
-    const validationError = validateForm({ name, teams: selectedTeams, email, contact, birthDate, entryDate });
+    const validationError = validateForm(
+      { name, teams: selectedTeams, email, contact, birthDate, entryDate },
+      teams
+    );
     if (validationError) return setError(validationError);
 
     setSaving(true);
@@ -231,8 +238,13 @@ export function AthleteFormModal({
             Times (pode marcar mais de um)
           </label>
           <div className="w-full border-[1.5px] border-border-input rounded-lg px-3.5 py-3 mb-4 grid grid-cols-2 gap-x-3 gap-y-2">
-            {TEAMS.map((t) => (
-              <label key={t.id} className="flex items-center gap-2 text-[14px] text-zinc-800 cursor-pointer">
+            {teams.map((t) => (
+              <label
+                key={t.id}
+                className={`flex items-center gap-2 text-[14px] cursor-pointer ${
+                  t.active ? "text-zinc-800" : "text-muted-2"
+                }`}
+              >
                 <input
                   type="checkbox"
                   checked={selectedTeams.includes(t.id)}
@@ -240,6 +252,8 @@ export function AthleteFormModal({
                   className="accent-brand-red w-4 h-4"
                 />
                 {t.label}
+                {t.maxAge != null && ` (até ${t.maxAge} anos)`}
+                {!t.active && " (inativo)"}
               </label>
             ))}
           </div>

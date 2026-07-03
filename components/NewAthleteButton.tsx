@@ -3,8 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AthleteFormModal } from "@/components/AthleteFormModal";
+import type { Team } from "@/lib/teams";
 
-export function NewAthleteButton({ teamId }: Readonly<{ teamId: string }>) {
+export function NewAthleteButton({
+  teamId,
+  teams,
+}: Readonly<{ teamId: string; teams: Team[] }>) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -19,6 +23,7 @@ export function NewAthleteButton({ teamId }: Readonly<{ teamId: string }>) {
       {open && (
         <AthleteFormModal
           mode="create"
+          teams={teams}
           defaultTeamId={teamId}
           onClose={() => setOpen(false)}
           onSaved={() => {

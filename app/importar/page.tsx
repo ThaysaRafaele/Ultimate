@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
-import { DEFAULT_TEAM_ID, teamLabel } from "@/lib/teams";
+import { findTeamLabel } from "@/lib/teams";
+import { getAllTeams } from "@/lib/teams-repo";
 
 export default async function ImportarPage({
   searchParams,
@@ -9,11 +10,14 @@ export default async function ImportarPage({
   searchParams: Promise<{ team?: string }>;
 }>) {
   const { team } = await searchParams;
-  const teamId = team ?? DEFAULT_TEAM_ID;
+
+  const allTeams = await getAllTeams();
+  const activeTeams = allTeams.filter((t) => t.active);
+  const teamId = activeTeams.some((t) => t.id === team) ? team! : (activeTeams[0]?.id ?? "");
 
   return (
     <div className="flex-1 flex flex-col">
-      <Header team={teamId} />
+      <Header team={teamId} teams={activeTeams} />
       <NavBar />
       <main className="flex-1 px-10 py-8 pb-14">
         <div className="max-w-250 mx-auto">
@@ -24,7 +28,7 @@ export default async function ImportarPage({
             ← Voltar para atletas
           </Link>
           <div className="font-heading font-semibold text-[13px] tracking-[0.24em] text-brand-red uppercase">
-            {teamLabel(teamId)}
+            {findTeamLabel(allTeams, teamId)}
           </div>
           <h1 className="font-heading font-bold text-[40px] uppercase mt-0.5 mb-6 text-ink">
             Importar atletas

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { athletes } from "@/lib/schema";
-import { TEAMS, POSITIONS } from "@/lib/teams";
+import { POSITIONS } from "@/lib/teams";
+import { getAllTeams } from "@/lib/teams-repo";
 import { validateAthletePayload } from "@/lib/validation";
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -14,8 +15,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
   const body = await request.json();
 
-  const teamIds = TEAMS.map((t) => t.id);
-  const validationError = validateAthletePayload(body, teamIds, POSITIONS);
+  const allTeams = await getAllTeams();
+  const validationError = validateAthletePayload(body, allTeams, POSITIONS);
   if (validationError) {
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
