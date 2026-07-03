@@ -3,7 +3,7 @@ import { pgTable, serial, text, integer, date, timestamp } from "drizzle-orm/pg-
 export const athletes = pgTable("athletes", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  team: text("team").notNull(),
+  teams: text("teams").array().notNull(),
   position: text("position").notNull(),
   number: integer("number"),
   photoUrl: text("photo_url"),
