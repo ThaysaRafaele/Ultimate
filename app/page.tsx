@@ -2,7 +2,7 @@ import { arrayContains, asc } from "drizzle-orm";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
-import { AthletesGrid } from "@/components/AthletesGrid";
+import { AthleteCard } from "@/components/AthleteCard";
 import { NewAthleteButton } from "@/components/NewAthleteButton";
 import { findTeamLabel } from "@/lib/teams";
 import { getAllTeams } from "@/lib/teams-repo";
@@ -81,7 +81,11 @@ export default async function AthletesPage({
               Nenhum atleta cadastrado ainda.
             </div>
           ) : (
-            <AthletesGrid athletes={teamAthletes} teamId={teamId} teams={allTeams} />
+            <div className="grid grid-cols-4 gap-4">
+              {teamAthletes.map((athlete) => (
+                <AthleteCard key={athlete.id} athlete={athlete} />
+              ))}
+            </div>
           )}
         </div>
       </main>

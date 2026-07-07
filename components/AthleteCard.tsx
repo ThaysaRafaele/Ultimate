@@ -1,12 +1,16 @@
 import Image from "next/image";
+import Link from "next/link";
 import { initials, numLabel, entryYear } from "@/lib/format";
 import type { athletes } from "@/lib/schema";
 
 type Athlete = typeof athletes.$inferSelect;
 
-function AthleteCardBody({ athlete }: Readonly<{ athlete: Athlete }>) {
+export function AthleteCard({ athlete }: Readonly<{ athlete: Athlete }>) {
   return (
-    <>
+    <Link
+      href={`/perfil/${athlete.id}`}
+      className="bg-white border border-border-light rounded-xl overflow-hidden block transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(0,0,0,.10)]"
+    >
       <div className="h-33 bg-charcoal relative flex items-center justify-center">
         {athlete.photoUrl ? (
           <Image src={athlete.photoUrl} alt={athlete.name} fill className="object-cover" />
@@ -30,29 +34,6 @@ function AthleteCardBody({ athlete }: Readonly<{ athlete: Athlete }>) {
           <span className="text-xs text-muted-2">Desde {entryYear(athlete.entryDate)}</span>
         </div>
       </div>
-    </>
-  );
-}
-
-const CARD_CLASSES =
-  "bg-white border border-border-light rounded-xl overflow-hidden transition-[transform,box-shadow] duration-150";
-const CLICKABLE_CLASSES = "cursor-pointer text-left w-full hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(0,0,0,.10)]";
-
-export function AthleteCard({
-  athlete,
-  onClick,
-}: Readonly<{ athlete: Athlete; onClick?: () => void }>) {
-  if (onClick) {
-    return (
-      <button type="button" onClick={onClick} className={`${CARD_CLASSES} ${CLICKABLE_CLASSES}`}>
-        <AthleteCardBody athlete={athlete} />
-      </button>
-    );
-  }
-
-  return (
-    <div className={CARD_CLASSES}>
-      <AthleteCardBody athlete={athlete} />
-    </div>
+    </Link>
   );
 }
