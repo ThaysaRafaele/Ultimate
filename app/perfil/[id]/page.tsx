@@ -47,7 +47,13 @@ export default async function PerfilPage({
               <div className="h-65 bg-charcoal relative flex items-center justify-center">
                 <div className="absolute inset-0 bg-[repeating-linear-gradient(120deg,transparent_0_16px,rgba(255,255,255,.03)_16px_17px)]" />
                 {athlete.photoUrl ? (
-                  <Image src={athlete.photoUrl} alt={athlete.name} fill className="object-cover" />
+                  <Image
+                    src={athlete.photoUrl}
+                    alt={athlete.name}
+                    fill
+                    className="object-cover"
+                    style={{ objectPosition: `${athlete.photoFocusX}% ${athlete.photoFocusY}%` }}
+                  />
                 ) : (
                   <div className="w-37.5 h-37.5 rounded-full bg-charcoal-light border-4 border-brand-red flex items-center justify-center text-white font-heading font-bold text-5xl relative">
                     {initials(athlete.name)}
@@ -70,6 +76,7 @@ export default async function PerfilPage({
 
                 <ProfileRow label="No clube desde" value={entryYear(athlete.entryDate)} />
                 <ProfileRow label="Nascimento" value={formatDateBR(athlete.birthDate)} />
+                <ProfileRow label="Altura" value={athlete.height ? `${athlete.height} cm` : "—"} />
                 <ProfileRow label="Contato" value={athlete.contact ?? "—"} />
                 <ProfileRow label="E-mail" value={athlete.email ?? "—"} small />
                 <ProfileRow label="Camisa" value={numLabel(athlete.number)} last />

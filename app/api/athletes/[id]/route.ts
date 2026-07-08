@@ -21,7 +21,20 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
-  const { name, teams, position, number, photoUrl, email, contact, birthDate, entryDate } = body;
+  const {
+    name,
+    teams,
+    position,
+    number,
+    height,
+    photoUrl,
+    photoFocusX,
+    photoFocusY,
+    email,
+    contact,
+    birthDate,
+    entryDate,
+  } = body;
 
   const [updated] = await db
     .update(athletes)
@@ -30,7 +43,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       teams,
       position,
       number: number ? Number(number) : null,
+      height: height ? Number(height) : null,
       photoUrl: photoUrl || null,
+      photoFocusX: photoFocusX ?? 50,
+      photoFocusY: photoFocusY ?? 50,
       email: email || null,
       contact: contact || null,
       birthDate: birthDate || null,
