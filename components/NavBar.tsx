@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type NavItem = {
   label: string;
@@ -23,6 +23,8 @@ const NAV_ITEMS: NavItem[] = [
 
 export function NavBar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const team = searchParams.get("team");
 
   return (
     <nav className="bg-brand-red h-[50px] flex items-stretch px-6 flex-shrink-0">
@@ -41,10 +43,11 @@ export function NavBar() {
         }
 
         const active = item.isActive(pathname);
+        const href = team ? `${item.href}?team=${team}` : item.href;
         return (
           <Link
             key={item.label}
-            href={item.href}
+            href={href}
             className={`bg-transparent text-white font-heading font-bold text-[15px] tracking-[0.06em] uppercase px-5 h-full flex items-center border-b-[3px] ${
               active ? "border-white" : "border-transparent opacity-90"
             }`}
