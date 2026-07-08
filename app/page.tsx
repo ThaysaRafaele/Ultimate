@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
 import { AthleteCard } from "@/components/AthleteCard";
 import { NewAthleteButton } from "@/components/NewAthleteButton";
+import { ToggleAthleteActiveButton } from "@/components/ToggleAthleteActiveButton";
 import { findTeamLabel } from "@/lib/teams";
 import { getAllTeams } from "@/lib/teams-repo";
 import { db } from "@/lib/db";
@@ -35,11 +36,18 @@ export default async function AthletesPage({
 
   const teamId = activeTeams.some((t) => t.id === team) ? team! : activeTeams[0].id;
 
-  const teamAthletes = await db
-    .select()
-    .from(athletes)
-    .where(and(arrayContains(athletes.teams, [teamId]), eq(athletes.active, true)))
-    .orderBy(asc(athletes.name));
+  const [teamAthletes, inactiveTeamAthletes] = await Promise.all([
+    db
+      .select()
+      .from(athletes)
+      .where(and(arrayContains(athletes.teams, [teamId]), eq(athletes.active, true)))
+      .orderBy(asc(athletes.name)),
+    db
+      .select()
+      .from(athletes)
+      .where(and(arrayContains(athletes.teams, [teamId]), eq(athletes.active, false)))
+      .orderBy(asc(athletes.name)),
+  ]);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -85,6 +93,30 @@ export default async function AthletesPage({
               {teamAthletes.map((athlete) => (
                 <AthleteCard key={athlete.id} athlete={athlete} />
               ))}
+            </div>
+          )}
+
+          {inactiveTeamAthletes.length > 0 && (
+            <div className="mt-8">
+              <div className="text-xs uppercase tracking-[0.08em] text-muted-2 font-semibold mb-2">
+                Atletas inativos
+              </div>
+              <div className="flex flex-col gap-2">
+                {inactiveTeamAthletes.map((athlete) => (
+                  <div
+                    key={athlete.id}
+                    className="flex items-center justify-between bg-bg-subtle rounded-lg px-4 py-3"
+                  >
+                    <Link
+                      href={`/perfil/${athlete.id}`}
+                      className="font-semibold text-muted-2 hover:underline"
+                    >
+                      {athlete.name}
+                    </Link>
+                    <ToggleAthleteActiveButton athleteId={athlete.id} active={false} variant="light" />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
