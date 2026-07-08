@@ -1,4 +1,4 @@
-import { arrayContains, asc } from "drizzle-orm";
+import { and, arrayContains, asc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
@@ -38,7 +38,7 @@ export default async function AthletesPage({
   const teamAthletes = await db
     .select()
     .from(athletes)
-    .where(arrayContains(athletes.teams, [teamId]))
+    .where(and(arrayContains(athletes.teams, [teamId]), eq(athletes.active, true)))
     .orderBy(asc(athletes.name));
 
   return (

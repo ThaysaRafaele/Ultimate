@@ -53,10 +53,30 @@ export function GameFormModal({
   const [ourScore, setOurScore] = useState(game?.ourScore == null ? "" : String(game.ourScore));
   const [theirScore, setTheirScore] = useState(game?.theirScore == null ? "" : String(game.theirScore));
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   let submitLabel = mode === "create" ? "Salvar jogo" : "Salvar alterações";
   if (saving) submitLabel = "Salvando…";
+
+  async function onDelete() {
+    if (!game) return;
+    if (!window.confirm("Excluir este jogo? Essa ação não pode ser desfeita.")) return;
+
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/games/${game.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error ?? "Não foi possível excluir o jogo.");
+      }
+      onSaved();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro inesperado.");
+      setDeleting(false);
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -234,21 +254,35 @@ export function GameFormModal({
 
           {error && <p className="text-brand-red text-sm mb-4">{error}</p>}
 
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="h-[46px] px-5 bg-white border-[1.5px] border-border-input rounded-lg font-bold text-sm uppercase cursor-pointer text-ink"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="h-[46px] px-6 bg-brand-red text-white border-none rounded-lg font-bold text-sm uppercase cursor-pointer disabled:opacity-60"
-            >
-              {submitLabel}
-            </button>
+          <div className="flex justify-between items-center gap-3">
+            {mode === "edit" ? (
+              <button
+                type="button"
+                onClick={onDelete}
+                disabled={deleting}
+                className="text-brand-red font-bold text-sm uppercase cursor-pointer bg-transparent border-none hover:underline disabled:opacity-60"
+              >
+                {deleting ? "Excluindo…" : "Excluir jogo"}
+              </button>
+            ) : (
+              <span />
+            )}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="h-11.5 px-5 bg-white border-[1.5px] border-border-input rounded-lg font-bold text-sm uppercase cursor-pointer text-ink"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="h-11.5 px-6 bg-brand-red text-white border-none rounded-lg font-bold text-sm uppercase cursor-pointer disabled:opacity-60"
+              >
+                {submitLabel}
+              </button>
+            </div>
           </div>
         </form>
       </div>

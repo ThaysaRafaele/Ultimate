@@ -45,3 +45,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   return NextResponse.json({ ...updated, championshipName: championshipRow.name });
 }
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const gameId = Number(id);
+  if (!Number.isInteger(gameId)) {
+    return NextResponse.json({ error: "Jogo inválido." }, { status: 400 });
+  }
+
+  const [deleted] = await db.delete(games).where(eq(games.id, gameId)).returning();
+  if (!deleted) {
+    return NextResponse.json({ error: "Jogo não encontrado." }, { status: 404 });
+  }
+
+  return NextResponse.json({ ok: true });
+}

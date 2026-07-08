@@ -22,6 +22,7 @@ export const athletes = pgTable("athletes", {
   contact: text("contact"),
   birthDate: date("birth_date"),
   entryDate: date("entry_date").notNull(),
+  active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

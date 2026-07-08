@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
 import { EditAthleteButton } from "@/components/EditAthleteButton";
+import { ToggleAthleteActiveButton } from "@/components/ToggleAthleteActiveButton";
 import { db } from "@/lib/db";
 import { athletes } from "@/lib/schema";
 import { getAllTeams } from "@/lib/teams-repo";
@@ -64,8 +65,15 @@ export default async function PerfilPage({
                 </div>
               </div>
               <div className="px-6 py-5.5">
-                <div className="font-heading font-bold text-3xl uppercase text-white leading-none">
-                  {athlete.name}
+                <div className="flex items-center gap-2">
+                  <div className="font-heading font-bold text-3xl uppercase text-white leading-none">
+                    {athlete.name}
+                  </div>
+                  {!athlete.active && (
+                    <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-muted-1 border border-charcoal-light rounded-full px-2 py-0.5">
+                      Inativo
+                    </span>
+                  )}
                 </div>
                 <div className="text-brand-red font-bold uppercase tracking-[0.06em] text-sm mt-1">
                   {athlete.position}
@@ -83,6 +91,7 @@ export default async function PerfilPage({
 
                 <div className="mt-4.5">
                   <EditAthleteButton athlete={athlete} teams={allTeams} />
+                  <ToggleAthleteActiveButton athleteId={athlete.id} active={athlete.active} />
                 </div>
               </div>
             </div>

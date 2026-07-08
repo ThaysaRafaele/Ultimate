@@ -78,7 +78,7 @@ export function TeamsManager({ teams }: Readonly<{ teams: TeamRow[] }>) {
         </button>
       </form>
       <p className="text-xs text-muted-2 mb-6">
-        Idade máxima é opcional — preencha só pra categorias de base (ex.: Sub 16 → 16). Ela
+        Idade máxima é opcional. Preencha só para categorias de base (ex.: Sub 16 → 16). Ela
         impede vincular um atleta mais velho do que isso à categoria.
       </p>
       {error && <p className="text-brand-red text-sm mb-4">{error}</p>}
