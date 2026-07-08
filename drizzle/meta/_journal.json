@@ -43,6 +43,13 @@
       "when": 1783482062944,
       "tag": "0005_medical_kingpin",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1783534867518,
+      "tag": "0006_tiny_kingpin",
+      "breakpoints": true
     }
   ]
 }

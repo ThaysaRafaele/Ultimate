@@ -16,7 +16,7 @@ const NAV_ITEMS: NavItem[] = [
     isActive: (p) => p === "/" || p.startsWith("/importar") || p.startsWith("/perfil"),
   },
   { label: "Jogos", href: "/jogos", isActive: (p) => p.startsWith("/jogos") },
-  { label: "Escalação", href: null, isActive: () => false },
+  { label: "Escalação", href: "/escalacao", isActive: (p) => p.startsWith("/escalacao") },
   { label: "Estatísticas", href: null, isActive: () => false },
   { label: "Visão Geral", href: null, isActive: () => false },
 ];

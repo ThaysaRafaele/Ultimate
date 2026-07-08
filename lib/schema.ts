@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, date, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, date, timestamp, boolean, unique } from "drizzle-orm/pg-core";
 
 export const teams = pgTable("teams", {
   id: text("id").primaryKey(),
@@ -44,3 +44,14 @@ export const games = pgTable("games", {
   theirScore: integer("their_score"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const gameLineups = pgTable(
+  "game_lineups",
+  {
+    id: serial("id").primaryKey(),
+    gameId: integer("game_id").notNull(),
+    athleteId: integer("athlete_id").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [unique().on(table.gameId, table.athleteId)]
+);
