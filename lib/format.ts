@@ -22,6 +22,17 @@ export function formatDateBR(iso: string | null): string {
   return `${d}/${m}/${y}`;
 }
 
+const MONTH_ABBR = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
+
+export function gameDay(iso: string): string {
+  return iso.slice(8, 10);
+}
+
+export function gameMonth(iso: string): string {
+  const monthIndex = Number(iso.slice(5, 7)) - 1;
+  return MONTH_ABBR[monthIndex] ?? "";
+}
+
 // Formats only the local part (DDD + number); the "+55" country code is
 // rendered as a static prefix outside the editable input, not baked into
 // this string — mixing literal digit characters into the mask breaks
