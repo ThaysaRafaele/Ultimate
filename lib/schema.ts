@@ -55,3 +55,18 @@ export const gameLineups = pgTable(
   },
   (table) => [unique().on(table.gameId, table.athleteId)]
 );
+
+export const gameStats = pgTable(
+  "game_stats",
+  {
+    id: serial("id").primaryKey(),
+    gameId: integer("game_id").notNull(),
+    athleteId: integer("athlete_id").notNull(),
+    points: integer("points").notNull().default(0),
+    rebounds: integer("rebounds").notNull().default(0),
+    assists: integer("assists").notNull().default(0),
+    steals: integer("steals").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [unique().on(table.gameId, table.athleteId)]
+);
