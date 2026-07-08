@@ -2,7 +2,7 @@ import { and, arrayContains, asc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
-import { AthleteCard } from "@/components/AthleteCard";
+import { AthletesRoster } from "@/components/AthletesRoster";
 import { NewAthleteButton } from "@/components/NewAthleteButton";
 import { ToggleAthleteActiveButton } from "@/components/ToggleAthleteActiveButton";
 import { findTeamLabel } from "@/lib/teams";
@@ -75,26 +75,7 @@ export default async function AthletesPage({
             </div>
           </div>
 
-          <div className="flex gap-3.5 mb-6">
-            <div className="bg-white border border-border-light rounded-[10px] px-5.5 py-4 flex-1">
-              <div className="text-xs uppercase tracking-[0.08em] text-muted-2 font-semibold">
-                Total no elenco
-              </div>
-              <div className="font-heading font-bold text-[34px] text-ink">{teamAthletes.length}</div>
-            </div>
-          </div>
-
-          {teamAthletes.length === 0 ? (
-            <div className="border border-dashed border-border-dash rounded-xl py-16 text-center text-muted-2">
-              Nenhum atleta cadastrado ainda.
-            </div>
-          ) : (
-            <div className="grid grid-cols-4 gap-4">
-              {teamAthletes.map((athlete) => (
-                <AthleteCard key={athlete.id} athlete={athlete} />
-              ))}
-            </div>
-          )}
+          <AthletesRoster athletes={teamAthletes} />
 
           {inactiveTeamAthletes.length > 0 && (
             <div className="mt-8">
