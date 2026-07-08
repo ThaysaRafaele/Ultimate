@@ -50,6 +50,13 @@
       "when": 1783534867518,
       "tag": "0006_tiny_kingpin",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1783538069142,
+      "tag": "0007_glorious_toxin",
+      "breakpoints": true
     }
   ]
 }

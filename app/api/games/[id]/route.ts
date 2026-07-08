@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { games } from "@/lib/schema";
+import { gameLineups, gameStats, games } from "@/lib/schema";
 import { getAllTeams } from "@/lib/teams-repo";
 import { getOrCreateChampionship } from "@/lib/championships-repo";
 import { validateGamePayload } from "@/lib/games-validation";
@@ -57,6 +57,9 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   if (!deleted) {
     return NextResponse.json({ error: "Jogo não encontrado." }, { status: 404 });
   }
+
+  await db.delete(gameLineups).where(eq(gameLineups.gameId, gameId));
+  await db.delete(gameStats).where(eq(gameStats.gameId, gameId));
 
   return NextResponse.json({ ok: true });
 }

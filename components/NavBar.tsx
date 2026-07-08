@@ -17,7 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   { label: "Jogos", href: "/jogos", isActive: (p) => p.startsWith("/jogos") },
   { label: "Escalação", href: "/escalacao", isActive: (p) => p.startsWith("/escalacao") },
-  { label: "Estatísticas", href: null, isActive: () => false },
+  { label: "Estatísticas", href: "/estatisticas", isActive: (p) => p.startsWith("/estatisticas") },
   { label: "Visão Geral", href: null, isActive: () => false },
 ];
 

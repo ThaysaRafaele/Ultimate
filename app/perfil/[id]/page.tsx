@@ -11,6 +11,7 @@ import { athletes } from "@/lib/schema";
 import { getAllTeams } from "@/lib/teams-repo";
 import { findTeamLabel } from "@/lib/teams";
 import { entryYear, formatDateBR, initials, numLabel } from "@/lib/format";
+import { getAthleteAverages, getAthleteGameLog } from "@/lib/stats-repo";
 
 export default async function PerfilPage({
   params,
@@ -29,6 +30,11 @@ export default async function PerfilPage({
   const headerTeamId =
     athlete.teams.find((t) => activeTeams.some((at) => at.id === t)) ?? activeTeams[0]?.id ?? "";
   const teamLabels = athlete.teams.map((t) => findTeamLabel(allTeams, t)).join(", ");
+
+  const [averages, gameLog] = await Promise.all([
+    getAthleteAverages(athlete.id),
+    getAthleteGameLog(athlete.id),
+  ]);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -98,21 +104,56 @@ export default async function PerfilPage({
 
             <div>
               <div className="grid grid-cols-4 gap-3.5 mb-5">
-                <StatCard label="Pontos / jogo" highlight />
-                <StatCard label="Rebotes / jogo" />
-                <StatCard label="Assist. / jogo" />
-                <StatCard label="Roubos / jogo" />
+                <StatCard
+                  label="Pontos / jogo"
+                  value={averages ? averages.ppg.toFixed(1) : "—"}
+                  highlight
+                />
+                <StatCard label="Rebotes / jogo" value={averages ? averages.rpg.toFixed(1) : "—"} />
+                <StatCard label="Assist. / jogo" value={averages ? averages.apg.toFixed(1) : "—"} />
+                <StatCard label="Roubos / jogo" value={averages ? averages.spg.toFixed(1) : "—"} />
               </div>
 
-              <div className="bg-white border border-border-light rounded-2xl p-11 text-center">
-                <div className="font-heading font-bold text-xl uppercase text-ink mb-2">
-                  Sem estatísticas ainda
+              {gameLog.length === 0 ? (
+                <div className="bg-white border border-border-light rounded-2xl p-11 text-center">
+                  <div className="font-heading font-bold text-xl uppercase text-ink mb-2">
+                    Sem estatísticas ainda
+                  </div>
+                  <p className="text-sm text-muted-2 max-w-125 mx-auto">
+                    Quando o lançamento de estatísticas for feito para os jogos deste atleta, o
+                    histórico aparece aqui automaticamente.
+                  </p>
                 </div>
-                <p className="text-sm text-muted-2 max-w-125 mx-auto">
-                  Quando o lançamento de jogos e estatísticas estiver pronto, o histórico e os
-                  gráficos deste atleta aparecem aqui automaticamente.
-                </p>
-              </div>
+              ) : (
+                <div className="bg-white border border-border-light rounded-2xl overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-zinc-50">
+                      <tr className="text-left text-xs uppercase tracking-[0.06em] text-muted-2">
+                        <th className="px-5 py-3 font-bold">Data</th>
+                        <th className="px-5 py-3 font-bold">Campeonato</th>
+                        <th className="px-5 py-3 font-bold">Adversário</th>
+                        <th className="px-5 py-3 font-bold text-center">Pts</th>
+                        <th className="px-5 py-3 font-bold text-center">Reb</th>
+                        <th className="px-5 py-3 font-bold text-center">Ast</th>
+                        <th className="px-5 py-3 font-bold text-center">Rou</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gameLog.map((g) => (
+                        <tr key={g.gameId} className="border-t border-border-light">
+                          <td className="px-5 py-3 text-muted-1">{formatDateBR(g.gameDate)}</td>
+                          <td className="px-5 py-3 text-ink">{g.championshipName ?? "—"}</td>
+                          <td className="px-5 py-3 text-ink">{g.opponent}</td>
+                          <td className="px-5 py-3 text-center font-bold text-ink">{g.points}</td>
+                          <td className="px-5 py-3 text-center text-ink">{g.rebounds}</td>
+                          <td className="px-5 py-3 text-center text-ink">{g.assists}</td>
+                          <td className="px-5 py-3 text-center text-ink">{g.steals}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -135,12 +176,16 @@ function ProfileRow({
   );
 }
 
-function StatCard({ label, highlight }: Readonly<{ label: string; highlight?: boolean }>) {
+function StatCard({
+  label,
+  value,
+  highlight,
+}: Readonly<{ label: string; value: string; highlight?: boolean }>) {
   return (
     <div className="bg-white border border-border-light rounded-xl px-5 py-4.5">
       <div className="text-xs uppercase tracking-[0.06em] text-muted-2 font-bold">{label}</div>
       <div className={`font-heading font-bold text-4xl leading-none ${highlight ? "text-brand-red" : "text-ink"}`}>
-        —
+        {value}
       </div>
     </div>
   );
