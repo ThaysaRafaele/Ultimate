@@ -59,7 +59,11 @@ type AthletePayload = {
   contact?: unknown;
   birthDate?: unknown;
   entryDate?: unknown;
+  height?: unknown;
 };
+
+export const MIN_HEIGHT_CM = 100;
+export const MAX_HEIGHT_CM = 250;
 
 export type TeamAgeRule = { id: string; label: string; maxAge: number | null };
 
@@ -92,6 +96,25 @@ export function ageLimitError(
   return null;
 }
 
+function birthAndEntryDateError(birthDate: unknown, entryDate: string): string | null {
+  if (typeof birthDate === "string" && birthDate && birthDate > maxBirthDateISO()) {
+    return `Data de nascimento inválida (idade mínima de ${MIN_ATHLETE_AGE} anos).`;
+  }
+  if (entryDate > todayISO()) return "Data de entrada não pode ser no futuro.";
+  if (typeof birthDate === "string" && birthDate && birthDate >= entryDate) {
+    return "Data de nascimento deve ser anterior à data de entrada.";
+  }
+  return null;
+}
+
+function heightError(height: unknown): string | null {
+  if (height == null) return null;
+  if (typeof height !== "number" || height < MIN_HEIGHT_CM || height > MAX_HEIGHT_CM) {
+    return `Altura deve estar entre ${MIN_HEIGHT_CM} e ${MAX_HEIGHT_CM} cm.`;
+  }
+  return null;
+}
+
 // Shared by POST /api/athletes and PUT /api/athletes/[id] so both entry
 // points enforce the same rules server-side (client-side checks in
 // AthleteFormModal can't be trusted alone).
@@ -100,7 +123,7 @@ export function validateAthletePayload(
   teamList: readonly TeamAgeRule[],
   positions: readonly string[]
 ): string | null {
-  const { name, teams, position, email, contact, birthDate, entryDate } = body;
+  const { name, teams, position, email, contact, birthDate, entryDate, height } = body;
   const teamIds = teamList.map((t) => t.id);
 
   if (typeof name !== "string" || name.trim() === "") return "Nome é obrigatório.";
@@ -109,16 +132,12 @@ export function validateAthletePayload(
   if (typeof entryDate !== "string" || entryDate.trim() === "") return "Data de entrada é obrigatória.";
   if (typeof email === "string" && email && !isValidEmail(email)) return "E-mail inválido.";
   if (typeof contact === "string" && contact && !isValidBRPhone(contact)) return "Telefone inválido.";
-  if (typeof birthDate === "string" && birthDate && birthDate > maxBirthDateISO()) {
-    return `Data de nascimento inválida (idade mínima de ${MIN_ATHLETE_AGE} anos).`;
-  }
-  if (entryDate > todayISO()) return "Data de entrada não pode ser no futuro.";
-  if (typeof birthDate === "string" && birthDate && birthDate >= entryDate) {
-    return "Data de nascimento deve ser anterior à data de entrada.";
-  }
+
+  const dateError = birthAndEntryDateError(birthDate, entryDate);
+  if (dateError) return dateError;
 
   const ageError = ageLimitError(teams, (birthDate as string) || null, teamList);
   if (ageError) return ageError;
 
-  return null;
+  return heightError(height);
 }

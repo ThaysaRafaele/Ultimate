@@ -9,7 +9,9 @@ import {
   isValidBRPhone,
   isValidEmail,
   maxBirthDateISO,
+  MAX_HEIGHT_CM,
   MIN_ATHLETE_AGE,
+  MIN_HEIGHT_CM,
   todayISO,
   withCountryCode,
 } from "@/lib/validation";
@@ -24,10 +26,11 @@ type FormValues = {
   contact: string;
   birthDate: string;
   entryDate: string;
+  height: string;
 };
 
 function validateForm(values: FormValues, teamList: Team[]): string | null {
-  const { name, teams, email, contact, birthDate, entryDate } = values;
+  const { name, teams, email, contact, birthDate, entryDate, height } = values;
 
   if (!name.trim()) return "Informe o nome completo do atleta.";
   if (teams.length === 0) return "Selecione ao menos uma equipe.";
@@ -39,6 +42,9 @@ function validateForm(values: FormValues, teamList: Team[]): string | null {
   }
   if (entryDate > todayISO()) return "Data de entrada não pode ser no futuro.";
   if (birthDate && birthDate >= entryDate) return "Data de nascimento deve ser anterior à data de entrada.";
+  if (height && (Number(height) < MIN_HEIGHT_CM || Number(height) > MAX_HEIGHT_CM)) {
+    return `Altura deve estar entre ${MIN_HEIGHT_CM} e ${MAX_HEIGHT_CM} cm.`;
+  }
 
   return ageLimitError(teams, birthDate || null, teamList);
 }
@@ -70,9 +76,12 @@ export function AthleteFormModal({
   const [number, setNumber] = useState(athlete?.number == null ? "" : String(athlete.number));
   const [birthDate, setBirthDate] = useState(athlete?.birthDate ?? "");
   const [entryDate, setEntryDate] = useState(athlete?.entryDate ?? "");
+  const [height, setHeight] = useState(athlete?.height == null ? "" : String(athlete.height));
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const photoUrl = athlete?.photoUrl ?? null;
   const [photoPreview, setPhotoPreview] = useState<string | null>(athlete?.photoUrl ?? null);
+  const [focusX, setFocusX] = useState(athlete?.photoFocusX ?? 50);
+  const [focusY, setFocusY] = useState(athlete?.photoFocusY ?? 50);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -88,6 +97,26 @@ export function AthleteFormModal({
     const file = e.target.files?.[0] ?? null;
     setPhotoFile(file);
     setPhotoPreview(file ? URL.createObjectURL(file) : photoUrl);
+    setFocusX(50);
+    setFocusY(50);
+  }
+
+  function onFocusClick(e: React.MouseEvent<HTMLButtonElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+    setFocusX(Math.min(100, Math.max(0, x)));
+    setFocusY(Math.min(100, Math.max(0, y)));
+  }
+
+  function onFocusKeyDown(e: React.KeyboardEvent<HTMLButtonElement>) {
+    const step = 5;
+    if (e.key === "ArrowLeft") setFocusX((v) => Math.max(0, v - step));
+    else if (e.key === "ArrowRight") setFocusX((v) => Math.min(100, v + step));
+    else if (e.key === "ArrowUp") setFocusY((v) => Math.max(0, v - step));
+    else if (e.key === "ArrowDown") setFocusY((v) => Math.min(100, v + step));
+    else return;
+    e.preventDefault();
   }
 
   function onContactChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -119,7 +148,7 @@ export function AthleteFormModal({
     setError(null);
 
     const validationError = validateForm(
-      { name, teams: selectedTeams, email, contact, birthDate, entryDate },
+      { name, teams: selectedTeams, email, contact, birthDate, entryDate, height },
       teams
     );
     if (validationError) return setError(validationError);
@@ -146,7 +175,10 @@ export function AthleteFormModal({
           teams: selectedTeams,
           position,
           number: number ? Number(number) : null,
+          height: height ? Number(height) : null,
           photoUrl: finalPhotoUrl,
+          photoFocusX: focusX,
+          photoFocusY: focusY,
           email: email || null,
           contact: contact ? withCountryCode(contact) : null,
           birthDate: birthDate || null,
@@ -223,6 +255,33 @@ export function AthleteFormModal({
               Enviar foto
             </button>
           </div>
+
+          {photoPreview && (
+            <div className="mb-4.5">
+              <div className="font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
+                Enquadramento no card (clique pra focar no rosto)
+              </div>
+              <button
+                type="button"
+                onClick={onFocusClick}
+                onKeyDown={onFocusKeyDown}
+                aria-label="Ajustar ponto de foco da foto com as setas do teclado"
+                className="relative w-full h-33 rounded-lg overflow-hidden cursor-crosshair border border-border-input p-0"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- may be a local blob: preview, not always an optimizable remote image */}
+                <img
+                  src={photoPreview}
+                  alt="Ajuste de enquadramento"
+                  className="w-full h-full object-cover pointer-events-none"
+                  style={{ objectPosition: `${focusX}% ${focusY}%` }}
+                />
+                <div
+                  className="absolute w-4 h-4 rounded-full bg-brand-red border-2 border-white pointer-events-none"
+                  style={{ left: `${focusX}%`, top: `${focusY}%`, transform: "translate(-50%,-50%)" }}
+                />
+              </button>
+            </div>
+          )}
 
           <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
             Nome completo
@@ -307,7 +366,7 @@ export function AthleteFormModal({
                 ))}
               </select>
             </div>
-            <div className="w-[110px]">
+            <div className="w-24">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Número
               </label>
@@ -315,6 +374,18 @@ export function AthleteFormModal({
                 value={number}
                 onChange={(e) => setNumber(e.target.value.replace(/\D/g, ""))}
                 placeholder="00"
+                inputMode="numeric"
+                className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
+              />
+            </div>
+            <div className="w-24">
+              <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
+                Altura
+              </label>
+              <input
+                value={height}
+                onChange={(e) => setHeight(e.target.value.replace(/\D/g, ""))}
+                placeholder="cm"
                 inputMode="numeric"
                 className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
               />

@@ -16,6 +16,12 @@ export function entryYear(entryDate: string): string {
   return entryDate.slice(0, 4);
 }
 
+export function formatDateBR(iso: string | null): string {
+  if (!iso) return "—";
+  const [y, m, d] = iso.slice(0, 10).split("-");
+  return `${d}/${m}/${y}`;
+}
+
 // Formats only the local part (DDD + number); the "+55" country code is
 // rendered as a static prefix outside the editable input, not baked into
 // this string — mixing literal digit characters into the mask breaks
