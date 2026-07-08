@@ -40,7 +40,7 @@ export default async function ImportarPage({
             </div>
             <p className="text-sm text-muted-2 max-w-125 mx-auto">
               A planilha atual do time reúne vários anos de dados espalhados em diversas abas.
-              Antes de automatizar a importação, vamos cadastrar os atletas por aqui mesmo — o
+              Antes de automatizar a importação, vamos cadastrar os atletas por aqui mesmo: o
               botão &ldquo;+ Novo atleta&rdquo; já está pronto pra isso. A importação direta da planilha fica
               para uma próxima etapa.
             </p>

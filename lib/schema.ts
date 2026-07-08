@@ -22,5 +22,25 @@ export const athletes = pgTable("athletes", {
   contact: text("contact"),
   birthDate: date("birth_date"),
   entryDate: date("entry_date").notNull(),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const championships = pgTable("championships", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const games = pgTable("games", {
+  id: serial("id").primaryKey(),
+  team: text("team").notNull(),
+  championshipId: text("championship_id").notNull(),
+  opponent: text("opponent").notNull(),
+  gameDate: date("game_date").notNull(),
+  gameTime: text("game_time").notNull(),
+  status: text("status").notNull().default("agendado"),
+  ourScore: integer("our_score"),
+  theirScore: integer("their_score"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

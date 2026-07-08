@@ -61,3 +61,29 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
   return NextResponse.json(updated);
 }
+
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const athleteId = Number(id);
+  if (!Number.isInteger(athleteId)) {
+    return NextResponse.json({ error: "Atleta inválido." }, { status: 400 });
+  }
+
+  const body = await request.json();
+  const { active } = body;
+  if (typeof active !== "boolean") {
+    return NextResponse.json({ error: "Campo 'active' é obrigatório." }, { status: 400 });
+  }
+
+  const [updated] = await db
+    .update(athletes)
+    .set({ active })
+    .where(eq(athletes.id, athleteId))
+    .returning();
+
+  if (!updated) {
+    return NextResponse.json({ error: "Atleta não encontrado." }, { status: 404 });
+  }
+
+  return NextResponse.json(updated);
+}

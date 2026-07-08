@@ -1,6 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { teams } from "@/lib/schema";
+import { uniqueSlug } from "@/lib/slug";
 
 export type TeamRow = typeof teams.$inferSelect;
 
@@ -12,28 +13,9 @@ export async function getAllTeams(): Promise<TeamRow[]> {
   return db.select().from(teams).orderBy(asc(teams.label));
 }
 
-const COMBINING_DIACRITICS_RE = /[̀-ͯ]/g;
-
-function slugify(label: string): string {
-  return label
-    .normalize("NFD")
-    .replace(COMBINING_DIACRITICS_RE, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export async function createTeam(label: string, maxAge?: number | null): Promise<TeamRow> {
-  const base = slugify(label) || "time";
   const existing = await getAllTeams();
-  const existingIds = new Set(existing.map((t) => t.id));
-
-  let id = base;
-  let suffix = 2;
-  while (existingIds.has(id)) {
-    id = `${base}-${suffix}`;
-    suffix += 1;
-  }
+  const id = uniqueSlug(label, new Set(existing.map((t) => t.id)), "time");
 
   const [created] = await db
     .insert(teams)

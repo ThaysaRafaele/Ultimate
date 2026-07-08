@@ -29,6 +29,20 @@
       "when": 1783464978776,
       "tag": "0003_normal_starhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783479897480,
+      "tag": "0004_gray_doctor_faustus",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783482062944,
+      "tag": "0005_medical_kingpin",
+      "breakpoints": true
     }
   ]
 }
