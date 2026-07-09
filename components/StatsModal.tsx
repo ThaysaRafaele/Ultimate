@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatDateBR } from "@/lib/format";
 import type { GameWithChampionship } from "@/lib/games-repo";
 import type { athletes } from "@/lib/schema";
@@ -93,6 +93,7 @@ export function StatsModal({
   const [rosterAthletes, setRosterAthletes] = useState<Athlete[]>([]);
   const [values, setValues] = useState<Record<number, StatValues>>({});
   const [boletim, setBoletim] = useState<Boletim>(EMPTY_BOLETIM);
+  const [mvpTouched, setMvpTouched] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -130,13 +131,35 @@ export function StatsModal({
         }
       }
       setValues(initial);
-      if (statsData.boletim) setBoletim(statsData.boletim);
+      if (statsData.boletim) {
+        setBoletim(statsData.boletim);
+        setMvpTouched(statsData.boletim.mvpAthleteId != null);
+      }
       setLoading(false);
     });
     return () => {
       cancelled = true;
     };
   }, [game.id, teamAthletes]);
+
+  // Sugere automaticamente o MVP com base no desempenho (pts+reb+ast+roubos),
+  // até o técnico escolher manualmente outro atleta no seletor.
+  const suggestedMvpId = useMemo(() => {
+    let bestId: number | null = null;
+    let bestScore = 0;
+    for (const a of rosterAthletes) {
+      const v = values[a.id];
+      if (!v) continue;
+      const score = v.points + v.rebounds + v.assists + v.steals;
+      if (score > bestScore) {
+        bestScore = score;
+        bestId = a.id;
+      }
+    }
+    return bestId;
+  }, [values, rosterAthletes]);
+
+  const effectiveMvpId = mvpTouched ? boletim.mvpAthleteId : suggestedMvpId;
 
   function updateValue(athleteId: number, field: StatField, raw: string) {
     const n = raw === "" ? 0 : Math.max(0, Math.floor(Number(raw)));
@@ -157,6 +180,7 @@ export function StatsModal({
   }
 
   function updateMvp(raw: string) {
+    setMvpTouched(true);
     setBoletim((prev) => ({ ...prev, mvpAthleteId: raw === "" ? null : Number(raw) }));
   }
 
@@ -181,7 +205,10 @@ export function StatsModal({
       const res = await fetch(`/api/games/${game.id}/stats`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stats, boletim: showBoletim ? boletim : undefined }),
+        body: JSON.stringify({
+          stats,
+          boletim: showBoletim ? { ...boletim, mvpAthleteId: effectiveMvpId } : undefined,
+        }),
       });
       if (!res.ok) {
         const body = await res.json();
@@ -283,7 +310,7 @@ export function StatsModal({
                         MVP do jogo
                       </div>
                       <select
-                        value={boletim.mvpAthleteId ?? ""}
+                        value={effectiveMvpId ?? ""}
                         onChange={(e) => updateMvp(e.target.value)}
                         className="h-9.5 px-3 border border-border-input rounded-md text-sm text-zinc-800"
                       >
@@ -291,9 +318,16 @@ export function StatsModal({
                         {rosterAthletes.map((a) => (
                           <option key={a.id} value={a.id}>
                             {a.name}
+                            {!mvpTouched && a.id === suggestedMvpId ? " (sugestão automática)" : ""}
                           </option>
                         ))}
                       </select>
+                      {!mvpTouched && suggestedMvpId != null && (
+                        <p className="text-xs text-muted-2 mt-1">
+                          Sugerido automaticamente pelo maior pts+reb+ast+roubos. Troque se quiser
+                          escolher outro atleta.
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
