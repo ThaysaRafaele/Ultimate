@@ -8,6 +8,12 @@ export type GameStatRow = {
   rebounds: number;
   assists: number;
   steals: number;
+  fg2Made: number;
+  fg2Attempted: number;
+  fg3Made: number;
+  fg3Attempted: number;
+  ftMade: number;
+  ftAttempted: number;
 };
 
 export async function getGameStats(gameId: number): Promise<GameStatRow[]> {
@@ -18,6 +24,12 @@ export async function getGameStats(gameId: number): Promise<GameStatRow[]> {
       rebounds: gameStats.rebounds,
       assists: gameStats.assists,
       steals: gameStats.steals,
+      fg2Made: gameStats.fg2Made,
+      fg2Attempted: gameStats.fg2Attempted,
+      fg3Made: gameStats.fg3Made,
+      fg3Attempted: gameStats.fg3Attempted,
+      ftMade: gameStats.ftMade,
+      ftAttempted: gameStats.ftAttempted,
     })
     .from(gameStats)
     .where(eq(gameStats.gameId, gameId));
@@ -35,6 +47,12 @@ export async function setGameStats(gameId: number, stats: GameStatRow[]): Promis
         rebounds: s.rebounds,
         assists: s.assists,
         steals: s.steals,
+        fg2Made: s.fg2Made,
+        fg2Attempted: s.fg2Attempted,
+        fg3Made: s.fg3Made,
+        fg3Attempted: s.fg3Attempted,
+        ftMade: s.ftMade,
+        ftAttempted: s.ftAttempted,
       }))
     );
   }

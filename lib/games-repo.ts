@@ -17,6 +17,17 @@ function gameSelect() {
       status: games.status,
       ourScore: games.ourScore,
       theirScore: games.theirScore,
+      q1OurScore: games.q1OurScore,
+      q1TheirScore: games.q1TheirScore,
+      q2OurScore: games.q2OurScore,
+      q2TheirScore: games.q2TheirScore,
+      q3OurScore: games.q3OurScore,
+      q3TheirScore: games.q3TheirScore,
+      q4OurScore: games.q4OurScore,
+      q4TheirScore: games.q4TheirScore,
+      otOurScore: games.otOurScore,
+      otTheirScore: games.otTheirScore,
+      mvpAthleteId: games.mvpAthleteId,
       createdAt: games.createdAt,
     })
     .from(games)
