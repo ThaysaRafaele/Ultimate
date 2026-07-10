@@ -88,3 +88,16 @@ export const gameStats = pgTable(
   },
   (table) => [unique().on(table.gameId, table.athleteId)]
 );
+
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: serial("id").primaryKey(),
+    athleteId: integer("athlete_id").notNull(),
+    gameId: integer("game_id").notNull(),
+    statType: text("stat_type").notNull(),
+    value: integer("value").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [unique().on(table.athleteId, table.gameId, table.statType)]
+);

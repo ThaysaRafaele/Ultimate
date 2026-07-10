@@ -11,7 +11,7 @@ import { athletes } from "@/lib/schema";
 import { getAllTeams } from "@/lib/teams-repo";
 import { findTeamLabel } from "@/lib/teams";
 import { entryYear, formatDateBR, initials, numLabel } from "@/lib/format";
-import { getAthleteAverages, getAthleteGameLog } from "@/lib/stats-repo";
+import { getAthleteAverages, getAthleteBestGame, getAthleteGameLog } from "@/lib/stats-repo";
 
 export default async function PerfilPage({
   params,
@@ -31,9 +31,10 @@ export default async function PerfilPage({
     athlete.teams.find((t) => activeTeams.some((at) => at.id === t)) ?? activeTeams[0]?.id ?? "";
   const teamLabels = athlete.teams.map((t) => findTeamLabel(allTeams, t)).join(", ");
 
-  const [averages, gameLog] = await Promise.all([
+  const [averages, gameLog, bestGame] = await Promise.all([
     getAthleteAverages(athlete.id),
     getAthleteGameLog(athlete.id),
+    getAthleteBestGame(athlete.id),
   ]);
 
   return (
@@ -115,6 +116,28 @@ export default async function PerfilPage({
                 <StatCard label="Roubos / jogo" value={averages ? averages.spg.toFixed(1) : "—"} />
               </div>
 
+              {bestGame && (
+                <div className="bg-ink-deep rounded-2xl px-6 py-5 mb-5 flex items-center justify-between flex-wrap gap-4">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.06em] text-brand-red font-bold mb-1">
+                      Melhor jogo
+                    </div>
+                    <div className="font-heading font-bold text-xl uppercase text-white">
+                      Ultimate <span className="text-muted-1 normal-case">vs</span> {bestGame.opponent}
+                    </div>
+                    <div className="text-xs text-muted-1 mt-0.5">
+                      {bestGame.championshipName} · {formatDateBR(bestGame.gameDate)}
+                    </div>
+                  </div>
+                  <div className="flex gap-6">
+                    <BestGameStat label="Pts" value={bestGame.points} highlight />
+                    <BestGameStat label="Reb" value={bestGame.rebounds} />
+                    <BestGameStat label="Ast" value={bestGame.assists} />
+                    <BestGameStat label="Rou" value={bestGame.steals} />
+                  </div>
+                </div>
+              )}
+
               {gameLog.length === 0 ? (
                 <div className="bg-white border border-border-light rounded-2xl p-11 text-center">
                   <div className="font-heading font-bold text-xl uppercase text-ink mb-2">
@@ -188,6 +211,23 @@ function StatCard({
       <div className={`font-heading font-bold text-4xl leading-none ${highlight ? "text-brand-red" : "text-ink"}`}>
         {value}
       </div>
+    </div>
+  );
+}
+
+function BestGameStat({
+  label,
+  value,
+  highlight,
+}: Readonly<{ label: string; value: number; highlight?: boolean }>) {
+  return (
+    <div className="text-center">
+      <div
+        className={`font-heading font-bold text-2xl leading-none ${highlight ? "text-brand-red" : "text-white"}`}
+      >
+        {value}
+      </div>
+      <div className="text-[10px] uppercase tracking-[0.06em] text-muted-1 mt-1">{label}</div>
     </div>
   );
 }

@@ -98,7 +98,10 @@ export function StatsModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const showBoletim = game.status === "realizado";
+  // Estatísticas (e o boletim) só podem ser lançadas depois que o jogo
+  // acontece — a flag já existe (status "realizado"/"agendado"), aqui só
+  // usamos ela pra travar a entrada de dados também.
+  const gameHappened = game.status === "realizado";
 
   useEffect(() => {
     let cancelled = false;
@@ -207,7 +210,7 @@ export function StatsModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           stats,
-          boletim: showBoletim ? { ...boletim, mvpAthleteId: effectiveMvpId } : undefined,
+          boletim: gameHappened ? { ...boletim, mvpAthleteId: effectiveMvpId } : undefined,
         }),
       });
       if (!res.ok) {
@@ -250,18 +253,18 @@ export function StatsModal({
         <div className="p-[26px] overflow-y-auto flex-1">
           {loading ? (
             <p className="text-muted-2 text-sm">Carregando…</p>
+          ) : !gameHappened ? (
+            <p className="text-sm text-muted-2">
+              Esse jogo ainda não aconteceu. Marque o jogo como &ldquo;Realizado&rdquo; (em Jogos,
+              com o placar final) para liberar o lançamento de estatísticas e o boletim.
+            </p>
           ) : (
             <>
               <div className="mb-6">
                 <div className="text-xs uppercase tracking-[0.06em] text-muted-2 font-bold mb-2">
                   Boletim do jogo
                 </div>
-                {!showBoletim ? (
-                  <p className="text-sm text-muted-2">
-                    Disponível quando o jogo for marcado como Realizado.
-                  </p>
-                ) : (
-                  <div className="flex flex-wrap gap-8 items-start">
+                <div className="flex flex-wrap gap-8 items-start">
                     <table className="text-sm">
                       <thead>
                         <tr className="text-left text-xs uppercase tracking-[0.06em] text-muted-2">
@@ -330,7 +333,6 @@ export function StatsModal({
                       )}
                     </div>
                   </div>
-                )}
               </div>
 
               {rosterAthletes.length === 0 ? (
@@ -411,14 +413,16 @@ export function StatsModal({
             >
               Cancelar
             </button>
-            <button
-              type="button"
-              onClick={onSave}
-              disabled={saving || loading || rosterAthletes.length === 0}
-              className="h-11.5 px-6 bg-brand-red text-white border-none rounded-lg font-bold text-sm uppercase cursor-pointer disabled:opacity-60"
-            >
-              {saving ? "Salvando…" : "Salvar estatísticas"}
-            </button>
+            {gameHappened && (
+              <button
+                type="button"
+                onClick={onSave}
+                disabled={saving || loading || rosterAthletes.length === 0}
+                className="h-11.5 px-6 bg-brand-red text-white border-none rounded-lg font-bold text-sm uppercase cursor-pointer disabled:opacity-60"
+              >
+                {saving ? "Salvando…" : "Salvar estatísticas"}
+              </button>
+            )}
           </div>
         </div>
       </div>

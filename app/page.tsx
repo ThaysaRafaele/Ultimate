@@ -34,12 +34,11 @@ export default async function AthletesPage({
     );
   }
 
-  const isAll = team === ALL_TEAMS_ID;
-  const teamId = isAll
-    ? ALL_TEAMS_ID
-    : activeTeams.some((t) => t.id === team)
-      ? team!
-      : activeTeams[0].id;
+  // Defaults to "Todos" when no team is picked yet (fresh load, or an
+  // unrecognized value) — a real team only takes over once explicitly
+  // selected from the dropdown.
+  const isAll = !activeTeams.some((t) => t.id === team);
+  const teamId = isAll ? ALL_TEAMS_ID : team!;
   const formTeamId = isAll ? activeTeams[0].id : teamId;
 
   const teamFilter = isAll ? undefined : arrayContains(athletes.teams, [teamId]);
