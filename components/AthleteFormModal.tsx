@@ -10,8 +10,10 @@ import {
   isValidEmail,
   maxBirthDateISO,
   MAX_HEIGHT_CM,
+  MAX_SHOE_SIZE,
   MIN_ATHLETE_AGE,
   MIN_HEIGHT_CM,
+  MIN_SHOE_SIZE,
   todayISO,
   withCountryCode,
 } from "@/lib/validation";
@@ -27,10 +29,11 @@ type FormValues = {
   birthDate: string;
   entryDate: string;
   height: string;
+  shoeSize: string;
 };
 
 function validateForm(values: FormValues, teamList: Team[]): string | null {
-  const { name, teams, email, contact, birthDate, entryDate, height } = values;
+  const { name, teams, email, contact, birthDate, entryDate, height, shoeSize } = values;
 
   if (!name.trim()) return "Informe o nome completo do atleta.";
   if (teams.length === 0) return "Selecione ao menos uma equipe.";
@@ -44,6 +47,9 @@ function validateForm(values: FormValues, teamList: Team[]): string | null {
   if (birthDate && birthDate >= entryDate) return "Data de nascimento deve ser anterior à data de entrada.";
   if (height && (Number(height) < MIN_HEIGHT_CM || Number(height) > MAX_HEIGHT_CM)) {
     return `Altura deve estar entre ${MIN_HEIGHT_CM} e ${MAX_HEIGHT_CM} cm.`;
+  }
+  if (shoeSize && (Number(shoeSize) < MIN_SHOE_SIZE || Number(shoeSize) > MAX_SHOE_SIZE)) {
+    return `Número do calçado deve estar entre ${MIN_SHOE_SIZE} e ${MAX_SHOE_SIZE}.`;
   }
 
   return ageLimitError(teams, birthDate || null, teamList);
@@ -77,6 +83,9 @@ export function AthleteFormModal({
   const [birthDate, setBirthDate] = useState(athlete?.birthDate ?? "");
   const [entryDate, setEntryDate] = useState(athlete?.entryDate ?? "");
   const [height, setHeight] = useState(athlete?.height == null ? "" : String(athlete.height));
+  const [shoeSize, setShoeSize] = useState(
+    athlete?.shoeSize == null ? "" : String(athlete.shoeSize)
+  );
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const photoUrl = athlete?.photoUrl ?? null;
   const [photoPreview, setPhotoPreview] = useState<string | null>(athlete?.photoUrl ?? null);
@@ -148,7 +157,7 @@ export function AthleteFormModal({
     setError(null);
 
     const validationError = validateForm(
-      { name, teams: selectedTeams, email, contact, birthDate, entryDate, height },
+      { name, teams: selectedTeams, email, contact, birthDate, entryDate, height, shoeSize },
       teams
     );
     if (validationError) return setError(validationError);
@@ -176,6 +185,7 @@ export function AthleteFormModal({
           position,
           number: number ? Number(number) : null,
           height: height ? Number(height) : null,
+          shoeSize: shoeSize ? Number(shoeSize) : null,
           photoUrl: finalPhotoUrl,
           photoFocusX: focusX,
           photoFocusY: focusY,
@@ -208,7 +218,7 @@ export function AthleteFormModal({
       onClick={onClose}
     >
       <div
-        className="bg-white w-[520px] rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+        className="bg-white w-145 rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-ink-deep px-[26px] py-5 flex items-center justify-between">
@@ -386,6 +396,18 @@ export function AthleteFormModal({
                 value={height}
                 onChange={(e) => setHeight(e.target.value.replace(/\D/g, ""))}
                 placeholder="cm"
+                inputMode="numeric"
+                className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
+              />
+            </div>
+            <div className="w-24">
+              <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
+                Calçado
+              </label>
+              <input
+                value={shoeSize}
+                onChange={(e) => setShoeSize(e.target.value.replace(/\D/g, ""))}
+                placeholder="Nº"
                 inputMode="numeric"
                 className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
               />

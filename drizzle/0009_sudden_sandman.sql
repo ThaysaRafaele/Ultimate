@@ -1,0 +1,1 @@
+ALTER TABLE "athletes" ADD COLUMN "shoe_size" integer;

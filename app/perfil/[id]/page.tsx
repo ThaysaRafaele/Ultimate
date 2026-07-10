@@ -91,6 +91,7 @@ export default async function PerfilPage({
                 <ProfileRow label="No clube desde" value={entryYear(athlete.entryDate)} />
                 <ProfileRow label="Nascimento" value={formatDateBR(athlete.birthDate)} />
                 <ProfileRow label="Altura" value={athlete.height ? `${athlete.height} cm` : "—"} />
+                <ProfileRow label="Calçado" value={athlete.shoeSize ? String(athlete.shoeSize) : "—"} />
                 <ProfileRow label="Contato" value={athlete.contact ?? "—"} />
                 <ProfileRow label="E-mail" value={athlete.email ?? "—"} small />
                 <ProfileRow label="Camisa" value={numLabel(athlete.number)} last />

@@ -5,11 +5,17 @@ import { AthleteCard } from "@/components/AthleteCard";
 import { AGE_FILTER_OPTIONS, matchesAgeFilter } from "@/lib/age-filter";
 import type { AgeFilterValue } from "@/lib/age-filter";
 import { ageInYears, todayISO } from "@/lib/validation";
+import { findTeamLabel } from "@/lib/teams";
+import type { Team } from "@/lib/teams";
 import type { athletes } from "@/lib/schema";
 
 type Athlete = typeof athletes.$inferSelect;
 
-export function AthletesRoster({ athletes }: Readonly<{ athletes: Athlete[] }>) {
+export function AthletesRoster({
+  athletes,
+  showTeamBadges,
+  allTeams,
+}: Readonly<{ athletes: Athlete[]; showTeamBadges?: boolean; allTeams?: Team[] }>) {
   const [ageFilter, setAgeFilter] = useState<AgeFilterValue>("todas");
 
   const filtered = useMemo(() => {
@@ -56,7 +62,15 @@ export function AthletesRoster({ athletes }: Readonly<{ athletes: Athlete[] }>) 
       ) : (
         <div className="grid grid-cols-4 gap-4">
           {filtered.map((athlete) => (
-            <AthleteCard key={athlete.id} athlete={athlete} />
+            <AthleteCard
+              key={athlete.id}
+              athlete={athlete}
+              teamLabel={
+                showTeamBadges && allTeams
+                  ? athlete.teams.map((t) => findTeamLabel(allTeams, t)).join(", ")
+                  : undefined
+              }
+            />
           ))}
         </div>
       )}

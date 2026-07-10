@@ -60,10 +60,14 @@ type AthletePayload = {
   birthDate?: unknown;
   entryDate?: unknown;
   height?: unknown;
+  shoeSize?: unknown;
 };
 
 export const MIN_HEIGHT_CM = 100;
 export const MAX_HEIGHT_CM = 250;
+
+export const MIN_SHOE_SIZE = 30;
+export const MAX_SHOE_SIZE = 50;
 
 export type TeamAgeRule = { id: string; label: string; maxAge: number | null };
 
@@ -115,6 +119,14 @@ function heightError(height: unknown): string | null {
   return null;
 }
 
+function shoeSizeError(shoeSize: unknown): string | null {
+  if (shoeSize == null) return null;
+  if (typeof shoeSize !== "number" || shoeSize < MIN_SHOE_SIZE || shoeSize > MAX_SHOE_SIZE) {
+    return `Número do calçado deve estar entre ${MIN_SHOE_SIZE} e ${MAX_SHOE_SIZE}.`;
+  }
+  return null;
+}
+
 // Shared by POST /api/athletes and PUT /api/athletes/[id] so both entry
 // points enforce the same rules server-side (client-side checks in
 // AthleteFormModal can't be trusted alone).
@@ -123,7 +135,7 @@ export function validateAthletePayload(
   teamList: readonly TeamAgeRule[],
   positions: readonly string[]
 ): string | null {
-  const { name, teams, position, email, contact, birthDate, entryDate, height } = body;
+  const { name, teams, position, email, contact, birthDate, entryDate, height, shoeSize } = body;
   const teamIds = teamList.map((t) => t.id);
 
   if (typeof name !== "string" || name.trim() === "") return "Nome é obrigatório.";
@@ -139,5 +151,8 @@ export function validateAthletePayload(
   const ageError = ageLimitError(teams, (birthDate as string) || null, teamList);
   if (ageError) return ageError;
 
-  return heightError(height);
+  const heightErr = heightError(height);
+  if (heightErr) return heightErr;
+
+  return shoeSizeError(shoeSize);
 }
