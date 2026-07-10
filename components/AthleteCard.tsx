@@ -6,7 +6,10 @@ import type { athletes } from "@/lib/schema";
 
 type Athlete = typeof athletes.$inferSelect;
 
-export function AthleteCard({ athlete }: Readonly<{ athlete: Athlete }>) {
+export function AthleteCard({
+  athlete,
+  teamLabel,
+}: Readonly<{ athlete: Athlete; teamLabel?: string }>) {
   const age = athlete.birthDate ? ageInYears(athlete.birthDate, todayISO()) : null;
 
   return (
@@ -45,6 +48,7 @@ export function AthleteCard({ athlete }: Readonly<{ athlete: Athlete }>) {
             {age != null && ` · ${age} anos`}
           </span>
         </div>
+        {teamLabel && <div className="text-xs text-muted-2 mt-1">{teamLabel}</div>}
       </div>
     </Link>
   );

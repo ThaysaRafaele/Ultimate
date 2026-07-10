@@ -5,7 +5,7 @@ import { NavBar } from "@/components/NavBar";
 import { AthletesRoster } from "@/components/AthletesRoster";
 import { NewAthleteButton } from "@/components/NewAthleteButton";
 import { ToggleAthleteActiveButton } from "@/components/ToggleAthleteActiveButton";
-import { findTeamLabel } from "@/lib/teams";
+import { ALL_TEAMS_ID, findTeamLabel } from "@/lib/teams";
 import { getAllTeams } from "@/lib/teams-repo";
 import { db } from "@/lib/db";
 import { athletes } from "@/lib/schema";
@@ -34,31 +34,39 @@ export default async function AthletesPage({
     );
   }
 
-  const teamId = activeTeams.some((t) => t.id === team) ? team! : activeTeams[0].id;
+  const isAll = team === ALL_TEAMS_ID;
+  const teamId = isAll
+    ? ALL_TEAMS_ID
+    : activeTeams.some((t) => t.id === team)
+      ? team!
+      : activeTeams[0].id;
+  const formTeamId = isAll ? activeTeams[0].id : teamId;
+
+  const teamFilter = isAll ? undefined : arrayContains(athletes.teams, [teamId]);
 
   const [teamAthletes, inactiveTeamAthletes] = await Promise.all([
     db
       .select()
       .from(athletes)
-      .where(and(arrayContains(athletes.teams, [teamId]), eq(athletes.active, true)))
+      .where(teamFilter ? and(teamFilter, eq(athletes.active, true)) : eq(athletes.active, true))
       .orderBy(asc(athletes.name)),
     db
       .select()
       .from(athletes)
-      .where(and(arrayContains(athletes.teams, [teamId]), eq(athletes.active, false)))
+      .where(teamFilter ? and(teamFilter, eq(athletes.active, false)) : eq(athletes.active, false))
       .orderBy(asc(athletes.name)),
   ]);
 
   return (
     <div className="flex-1 flex flex-col">
-      <Header team={teamId} teams={activeTeams} />
+      <Header team={teamId} teams={activeTeams} includeAllTeamsOption />
       <NavBar />
       <main className="flex-1 px-10 py-8 pb-14">
         <div className="max-w-295 mx-auto">
           <div className="flex items-end justify-between mb-6">
             <div>
               <div className="font-heading font-semibold text-[13px] tracking-[0.24em] text-brand-red uppercase">
-                {findTeamLabel(allTeams, teamId)}
+                {isAll ? "Todos os atletas" : findTeamLabel(allTeams, teamId)}
               </div>
               <h1 className="font-heading font-bold text-[40px] uppercase mt-0.5 text-ink">
                 Atletas cadastrados
@@ -66,16 +74,16 @@ export default async function AthletesPage({
             </div>
             <div className="flex gap-3">
               <Link
-                href={`/importar?team=${teamId}`}
+                href={`/importar?team=${formTeamId}`}
                 className="h-11.5 px-5 bg-white text-ink border-[1.5px] border-border-input rounded-lg font-bold text-sm uppercase tracking-[0.04em] cursor-pointer hover:border-ink flex items-center"
               >
                 Importar atletas
               </Link>
-              <NewAthleteButton teamId={teamId} teams={allTeams} />
+              <NewAthleteButton teamId={formTeamId} teams={allTeams} />
             </div>
           </div>
 
-          <AthletesRoster athletes={teamAthletes} />
+          <AthletesRoster athletes={teamAthletes} showTeamBadges={isAll} allTeams={allTeams} />
 
           {inactiveTeamAthletes.length > 0 && (
             <div className="mt-8">

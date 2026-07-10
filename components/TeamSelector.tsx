@@ -1,9 +1,14 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { ALL_TEAMS_ID } from "@/lib/teams";
 import type { Team } from "@/lib/teams";
 
-export function TeamSelector({ value, teams }: Readonly<{ value: string; teams: Team[] }>) {
+export function TeamSelector({
+  value,
+  teams,
+  includeAllOption,
+}: Readonly<{ value: string; teams: Team[]; includeAllOption?: boolean }>) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -24,6 +29,7 @@ export function TeamSelector({ value, teams }: Readonly<{ value: string; teams: 
         onChange={onChange}
         className="h-[38px] bg-charcoal text-white border border-zinc-border rounded-lg px-3 font-bold text-sm cursor-pointer"
       >
+        {includeAllOption && <option value={ALL_TEAMS_ID}>Todos</option>}
         {teams.map((t) => (
           <option key={t.id} value={t.id}>
             {t.label}

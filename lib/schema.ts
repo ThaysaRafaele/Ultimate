@@ -15,6 +15,7 @@ export const athletes = pgTable("athletes", {
   position: text("position").notNull(),
   number: integer("number"),
   height: integer("height"),
+  shoeSize: integer("shoe_size"),
   photoUrl: text("photo_url"),
   photoFocusX: integer("photo_focus_x").notNull().default(50),
   photoFocusY: integer("photo_focus_y").notNull().default(50),
