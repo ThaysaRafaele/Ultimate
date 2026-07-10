@@ -97,6 +97,7 @@ export const notifications = pgTable(
     gameId: integer("game_id").notNull(),
     statType: text("stat_type").notNull(),
     value: integer("value").notNull(),
+    read: boolean("read").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [unique().on(table.athleteId, table.gameId, table.statType)]

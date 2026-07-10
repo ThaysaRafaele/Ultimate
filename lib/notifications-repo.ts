@@ -23,6 +23,7 @@ export type NotificationRow = {
   statType: string;
   statLabel: string;
   value: number;
+  read: boolean;
   createdAt: Date;
 };
 
@@ -37,6 +38,7 @@ export async function getRecentNotifications(limit = 50): Promise<NotificationRo
       gameDate: games.gameDate,
       statType: notifications.statType,
       value: notifications.value,
+      read: notifications.read,
       createdAt: notifications.createdAt,
     })
     .from(notifications)
@@ -46,6 +48,22 @@ export async function getRecentNotifications(limit = 50): Promise<NotificationRo
     .limit(limit);
 
   return rows.map((r) => ({ ...r, statLabel: STAT_LABELS[r.statType as StatType] ?? r.statType }));
+}
+
+export async function getUnreadNotificationsCount(): Promise<number> {
+  const [row] = await db
+    .select({ count: sql<string>`count(*)` })
+    .from(notifications)
+    .where(eq(notifications.read, false));
+  return Number(row?.count ?? 0);
+}
+
+export async function markNotificationRead(id: number): Promise<void> {
+  await db.update(notifications).set({ read: true }).where(eq(notifications.id, id));
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  await db.update(notifications).set({ read: true }).where(eq(notifications.read, false));
 }
 
 // Called right after stats are saved for a game. Re-derives whether each
