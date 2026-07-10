@@ -119,3 +119,26 @@ export async function getAthleteGameLog(athleteId: number): Promise<AthleteGameL
     .where(eq(gameStats.athleteId, athleteId))
     .orderBy(desc(games.gameDate));
 }
+
+// Career-high game by points, for the "Melhor jogo" highlight on the profile page.
+export async function getAthleteBestGame(athleteId: number): Promise<AthleteGameLogRow | null> {
+  const rows = await db
+    .select({
+      gameId: games.id,
+      gameDate: games.gameDate,
+      opponent: games.opponent,
+      championshipName: championships.name,
+      points: gameStats.points,
+      rebounds: gameStats.rebounds,
+      assists: gameStats.assists,
+      steals: gameStats.steals,
+    })
+    .from(gameStats)
+    .innerJoin(games, eq(gameStats.gameId, games.id))
+    .leftJoin(championships, eq(games.championshipId, championships.id))
+    .where(eq(gameStats.athleteId, athleteId))
+    .orderBy(desc(gameStats.points))
+    .limit(1);
+
+  return rows[0] ?? null;
+}

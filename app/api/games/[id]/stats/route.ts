@@ -3,6 +3,7 @@ import { and, arrayContains, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { athletes, games } from "@/lib/schema";
 import { getGameStats, setGameStats } from "@/lib/stats-repo";
+import { checkAndRecordPersonalRecords } from "@/lib/notifications-repo";
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -105,6 +106,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   if (!game) {
     return NextResponse.json({ error: "Jogo não encontrado." }, { status: 404 });
   }
+  if (game.status !== "realizado") {
+    return NextResponse.json(
+      { error: "Só é possível lançar estatísticas de jogos marcados como Realizado." },
+      { status: 400 }
+    );
+  }
 
   const athleteIds: number[] = stats.map((s) => s.athleteId);
   if (athleteIds.length > 0) {
@@ -134,6 +141,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   await setGameStats(gameId, stats);
+  await checkAndRecordPersonalRecords(gameId, stats);
 
   if (boletim) {
     await db
