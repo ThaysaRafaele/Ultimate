@@ -11,6 +11,7 @@ export const teams = pgTable("teams", {
 export const athletes = pgTable("athletes", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  nickname: text("nickname"),
   teams: text("teams").array().notNull(),
   position: text("position").notNull(),
   number: integer("number"),

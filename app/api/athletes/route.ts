@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
 
   const {
     name,
+    nickname,
     teams,
     position,
     number,
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
     .insert(athletes)
     .values({
       name: name.trim(),
+      nickname: nickname?.trim() || null,
       teams,
       position,
       number: number ? Number(number) : null,

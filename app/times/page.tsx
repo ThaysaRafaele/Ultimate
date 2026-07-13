@@ -3,6 +3,11 @@ import Image from "next/image";
 import { TeamsManager } from "@/components/TeamsManager";
 import { getAllTeams } from "@/lib/teams-repo";
 
+// No dynamic segments/searchParams here, so Next would otherwise prerender
+// this page once at build/deploy time — freezing the team list as it was
+// at that moment instead of reflecting teams created afterward.
+export const dynamic = "force-dynamic";
+
 export default async function TimesPage() {
   const allTeams = await getAllTeams();
 

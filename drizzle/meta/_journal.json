@@ -85,6 +85,13 @@
       "when": 1783717674724,
       "tag": "0011_yellow_screwball",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1783972793886,
+      "tag": "0012_wandering_gamora",
+      "breakpoints": true
     }
   ]
 }

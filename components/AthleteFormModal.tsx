@@ -75,6 +75,7 @@ export function AthleteFormModal({
   onSaved: () => void;
 }>) {
   const [name, setName] = useState(athlete?.name ?? "");
+  const [nickname, setNickname] = useState(athlete?.nickname ?? "");
   const [selectedTeams, setSelectedTeams] = useState<string[]>(athlete?.teams ?? [defaultTeamId]);
   const [email, setEmail] = useState(athlete?.email ?? "");
   const [contact, setContact] = useState(localPhone(athlete?.contact ?? null));
@@ -181,6 +182,7 @@ export function AthleteFormModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
+          nickname: nickname.trim() || null,
           teams: selectedTeams,
           position,
           number: number ? Number(number) : null,
@@ -293,15 +295,30 @@ export function AthleteFormModal({
             </div>
           )}
 
-          <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
-            Nome completo
-          </label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Ex.: João Silva"
-            className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] mb-4 text-zinc-800"
-          />
+          <div className="flex gap-3.5 mb-4">
+            <div className="flex-1">
+              <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
+                Nome completo
+              </label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex.: João Silva"
+                className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
+              />
+            </div>
+            <div className="w-40">
+              <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
+                Apelido
+              </label>
+              <input
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="Ex.: João"
+                className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
+              />
+            </div>
+          </div>
 
           <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
             Times (pode marcar mais de um)
