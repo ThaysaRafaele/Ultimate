@@ -37,7 +37,7 @@ export function AthleteCard({
       </div>
       <div className="px-4 pt-3.5 pb-4">
         <div className="font-heading font-bold text-xl uppercase text-ink leading-tight">
-          {athlete.name}
+          {athlete.nickname || athlete.name}
         </div>
         <div className="flex items-center justify-between mt-1.5">
           <span className="text-[13px] font-semibold text-brand-red uppercase tracking-[0.04em]">

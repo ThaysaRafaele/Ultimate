@@ -23,6 +23,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
   const {
     name,
+    nickname,
     teams,
     position,
     number,
@@ -41,6 +42,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     .update(athletes)
     .set({
       name: name.trim(),
+      nickname: nickname?.trim() || null,
       teams,
       position,
       number: number ? Number(number) : null,
