@@ -1,25 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatDateBR } from "@/lib/format";
+import { computeEff, computePoints, computeReboundsTotal, pct } from "@/lib/stats-calc";
+import type { GameStatRow } from "@/lib/stats-calc";
 import type { GameWithChampionship } from "@/lib/games-repo";
 import type { athletes } from "@/lib/schema";
 
 type Athlete = typeof athletes.$inferSelect;
-
-type StatValues = {
-  points: number;
-  rebounds: number;
-  assists: number;
-  steals: number;
-  fg2Made: number;
-  fg2Attempted: number;
-  fg3Made: number;
-  fg3Attempted: number;
-  ftMade: number;
-  ftAttempted: number;
-};
-type StatField = keyof StatValues;
+type StatField = keyof Omit<GameStatRow, "athleteId">;
 
 type Boletim = {
   q1OurScore: number | null;
@@ -36,11 +25,14 @@ type Boletim = {
 };
 type QuarterField = Exclude<keyof Boletim, "mvpAthleteId">;
 
-const EMPTY_STATS: StatValues = {
-  points: 0,
-  rebounds: 0,
+const EMPTY_STATS: Omit<GameStatRow, "athleteId"> = {
+  reboundsOff: 0,
+  reboundsDef: 0,
   assists: 0,
   steals: 0,
+  blocks: 0,
+  turnovers: 0,
+  fouls: 0,
   fg2Made: 0,
   fg2Attempted: 0,
   fg3Made: 0,
@@ -62,16 +54,18 @@ const EMPTY_BOLETIM: Boletim = {
   mvpAthleteId: null,
 };
 
-const SIMPLE_FIELDS: { key: StatField; label: string }[] = [
-  { key: "points", label: "Pts" },
-  { key: "rebounds", label: "Reb" },
-  { key: "assists", label: "Ast" },
-  { key: "steals", label: "Rou" },
-];
+// Mesma ordem da planilha do técnico: Lance livre, 2 Pontos, 3 Pontos.
 const SHOT_FIELDS: { made: StatField; attempted: StatField; label: string }[] = [
+  { made: "ftMade", attempted: "ftAttempted", label: "LL" },
   { made: "fg2Made", attempted: "fg2Attempted", label: "2PT" },
   { made: "fg3Made", attempted: "fg3Attempted", label: "3PT" },
-  { made: "ftMade", attempted: "ftAttempted", label: "LL" },
+];
+const OTHER_FIELDS: { key: StatField; label: string }[] = [
+  { key: "assists", label: "Ast" },
+  { key: "blocks", label: "Toco" },
+  { key: "turnovers", label: "Erros" },
+  { key: "steals", label: "Roubos" },
+  { key: "fouls", label: "Faltas" },
 ];
 const QUARTERS: { our: QuarterField; their: QuarterField; label: string }[] = [
   { our: "q1OurScore", their: "q1TheirScore", label: "Q1" },
@@ -91,7 +85,7 @@ export function StatsModal({
   onClose: () => void;
 }>) {
   const [rosterAthletes, setRosterAthletes] = useState<Athlete[]>([]);
-  const [values, setValues] = useState<Record<number, StatValues>>({});
+  const [values, setValues] = useState<Record<number, Omit<GameStatRow, "athleteId">>>({});
   const [boletim, setBoletim] = useState<Boletim>(EMPTY_BOLETIM);
   const [mvpTouched, setMvpTouched] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -115,15 +109,18 @@ export function StatsModal({
         lineupIds.length > 0 ? teamAthletes.filter((a) => lineupIds.includes(a.id)) : teamAthletes;
       setRosterAthletes(roster);
 
-      const initial: Record<number, StatValues> = {};
+      const initial: Record<number, Omit<GameStatRow, "athleteId">> = {};
       for (const a of roster) initial[a.id] = { ...EMPTY_STATS };
       for (const s of statsData.stats ?? []) {
         if (initial[s.athleteId]) {
           initial[s.athleteId] = {
-            points: s.points,
-            rebounds: s.rebounds,
+            reboundsOff: s.reboundsOff,
+            reboundsDef: s.reboundsDef,
             assists: s.assists,
             steals: s.steals,
+            blocks: s.blocks,
+            turnovers: s.turnovers,
+            fouls: s.fouls,
             fg2Made: s.fg2Made,
             fg2Attempted: s.fg2Attempted,
             fg3Made: s.fg3Made,
@@ -145,15 +142,15 @@ export function StatsModal({
     };
   }, [game.id, teamAthletes]);
 
-  // Sugere automaticamente o MVP com base no desempenho (pts+reb+ast+roubos),
-  // até o técnico escolher manualmente outro atleta no seletor.
+  // Sugere automaticamente o MVP com base na maior eficiência (EFF), até o
+  // técnico escolher manualmente outro atleta no seletor.
   const suggestedMvpId = useMemo(() => {
     let bestId: number | null = null;
     let bestScore = 0;
     for (const a of rosterAthletes) {
       const v = values[a.id];
       if (!v) continue;
-      const score = v.points + v.rebounds + v.assists + v.steals;
+      const score = computeEff({ athleteId: a.id, ...v });
       if (score > bestScore) {
         bestScore = score;
         bestId = a.id;
@@ -167,13 +164,10 @@ export function StatsModal({
   function updateValue(athleteId: number, field: StatField, raw: string) {
     const n = raw === "" ? 0 : Math.max(0, Math.floor(Number(raw)));
     if (Number.isNaN(n)) return;
-    setValues((prev) => {
-      const updated = { ...(prev[athleteId] ?? EMPTY_STATS), [field]: n };
-      if (field === "fg2Made" || field === "fg3Made" || field === "ftMade") {
-        updated.points = updated.fg2Made * 2 + updated.fg3Made * 3 + updated.ftMade;
-      }
-      return { ...prev, [athleteId]: updated };
-    });
+    setValues((prev) => ({
+      ...prev,
+      [athleteId]: { ...(prev[athleteId] ?? EMPTY_STATS), [field]: n },
+    }));
   }
 
   function updateQuarter(field: QuarterField, raw: string) {
@@ -231,7 +225,7 @@ export function StatsModal({
       onClick={onClose}
     >
       <div
-        className="bg-white w-215 rounded-2xl overflow-hidden max-h-[85vh] flex flex-col"
+        className="bg-white w-[95vw] max-w-375 rounded-2xl overflow-hidden max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-ink-deep px-[26px] py-5 flex items-center justify-between shrink-0">
@@ -265,74 +259,74 @@ export function StatsModal({
                   Boletim do jogo
                 </div>
                 <div className="flex flex-wrap gap-8 items-start">
-                    <table className="text-sm">
-                      <thead>
-                        <tr className="text-left text-xs uppercase tracking-[0.06em] text-muted-2">
-                          <th className="pb-2 pr-3 font-bold"></th>
-                          {QUARTERS.map((q) => (
-                            <th key={q.label} className="pb-2 px-1 font-bold text-center w-16">
-                              {q.label}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="pr-3 py-1 text-zinc-800">Nós</td>
-                          {QUARTERS.map((q) => (
-                            <td key={q.label} className="px-1 py-1 text-center">
-                              <input
-                                type="number"
-                                min={0}
-                                value={boletim[q.our] ?? ""}
-                                onChange={(e) => updateQuarter(q.our, e.target.value)}
-                                className="w-14 text-center border border-border-input rounded-md py-1"
-                              />
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="pr-3 py-1 text-zinc-800">Advers.</td>
-                          {QUARTERS.map((q) => (
-                            <td key={q.label} className="px-1 py-1 text-center">
-                              <input
-                                type="number"
-                                min={0}
-                                value={boletim[q.their] ?? ""}
-                                onChange={(e) => updateQuarter(q.their, e.target.value)}
-                                className="w-14 text-center border border-border-input rounded-md py-1"
-                              />
-                            </td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.06em] text-muted-2 font-bold mb-2">
-                        MVP do jogo
-                      </div>
-                      <select
-                        value={effectiveMvpId ?? ""}
-                        onChange={(e) => updateMvp(e.target.value)}
-                        className="h-9.5 px-3 border border-border-input rounded-md text-sm text-zinc-800"
-                      >
-                        <option value="">Nenhum</option>
-                        {rosterAthletes.map((a) => (
-                          <option key={a.id} value={a.id}>
-                            {a.name}
-                            {!mvpTouched && a.id === suggestedMvpId ? " (sugestão automática)" : ""}
-                          </option>
+                  <table className="text-sm">
+                    <thead>
+                      <tr className="text-left text-xs uppercase tracking-[0.06em] text-muted-2">
+                        <th className="pb-2 pr-3 font-bold"></th>
+                        {QUARTERS.map((q) => (
+                          <th key={q.label} className="pb-2 px-1 font-bold text-center w-16">
+                            {q.label}
+                          </th>
                         ))}
-                      </select>
-                      {!mvpTouched && suggestedMvpId != null && (
-                        <p className="text-xs text-muted-2 mt-1">
-                          Sugerido automaticamente pelo maior pts+reb+ast+roubos. Troque se quiser
-                          escolher outro atleta.
-                        </p>
-                      )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="pr-3 py-1 text-zinc-800">Nós</td>
+                        {QUARTERS.map((q) => (
+                          <td key={q.label} className="px-1 py-1 text-center">
+                            <input
+                              type="number"
+                              min={0}
+                              value={boletim[q.our] ?? ""}
+                              onChange={(e) => updateQuarter(q.our, e.target.value)}
+                              className="w-14 text-center border border-border-input rounded-md py-1"
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td className="pr-3 py-1 text-zinc-800">Advers.</td>
+                        {QUARTERS.map((q) => (
+                          <td key={q.label} className="px-1 py-1 text-center">
+                            <input
+                              type="number"
+                              min={0}
+                              value={boletim[q.their] ?? ""}
+                              onChange={(e) => updateQuarter(q.their, e.target.value)}
+                              className="w-14 text-center border border-border-input rounded-md py-1"
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.06em] text-muted-2 font-bold mb-2">
+                      MVP do jogo
                     </div>
+                    <select
+                      value={effectiveMvpId ?? ""}
+                      onChange={(e) => updateMvp(e.target.value)}
+                      className="h-9.5 px-3 border border-border-input rounded-md text-sm text-zinc-800"
+                    >
+                      <option value="">Nenhum</option>
+                      {rosterAthletes.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name}
+                          {!mvpTouched && a.id === suggestedMvpId ? " (sugestão automática)" : ""}
+                        </option>
+                      ))}
+                    </select>
+                    {!mvpTouched && suggestedMvpId != null && (
+                      <p className="text-xs text-muted-2 mt-1">
+                        Sugerido automaticamente pela maior eficiência (EFF). Troque se quiser
+                        escolher outro atleta.
+                      </p>
+                    )}
                   </div>
+                </div>
               </div>
 
               {rosterAthletes.length === 0 ? (
@@ -344,57 +338,110 @@ export function StatsModal({
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-xs uppercase tracking-[0.06em] text-muted-2">
-                        <th className="pb-2 pr-2 font-bold">Atleta</th>
-                        {SIMPLE_FIELDS.map((f) => (
+                        <th className="pb-2 pr-2 font-bold sticky left-0 bg-white">Atleta</th>
+                        {SHOT_FIELDS.map((f) => (
+                          <th key={f.label} colSpan={3} className="pb-2 px-1 font-bold text-center">
+                            {f.label}
+                          </th>
+                        ))}
+                        <th className="pb-2 px-1 font-bold text-center w-14">Reb D</th>
+                        <th className="pb-2 px-1 font-bold text-center w-14">Reb O</th>
+                        <th className="pb-2 px-1 font-bold text-center w-14">Reb</th>
+                        {OTHER_FIELDS.map((f) => (
                           <th key={f.key} className="pb-2 px-1 font-bold text-center w-14">
                             {f.label}
                           </th>
                         ))}
+                        <th className="pb-2 px-1 font-bold text-center w-14">Total</th>
+                        <th className="pb-2 px-1 font-bold text-center w-14">EFF</th>
+                      </tr>
+                      <tr className="text-left text-[10px] uppercase tracking-[0.04em] text-muted-2">
+                        <th className="pb-2 pr-2 sticky left-0 bg-white"></th>
                         {SHOT_FIELDS.map((f) => (
-                          <th key={f.label} className="pb-2 px-1 font-bold text-center w-24">
-                            {f.label} (C/T)
-                          </th>
+                          <Fragment key={f.label}>
+                            <th className="pb-2 px-1 text-center w-10 font-normal">T</th>
+                            <th className="pb-2 px-1 text-center w-10 font-normal">C</th>
+                            <th className="pb-2 px-1 text-center w-12 font-normal">%</th>
+                          </Fragment>
                         ))}
+                        <th colSpan={3 + OTHER_FIELDS.length + 2}></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {rosterAthletes.map((a) => (
-                        <tr key={a.id} className="border-t border-border-light">
-                          <td className="py-2 pr-2 text-zinc-800 whitespace-nowrap">{a.name}</td>
-                          {SIMPLE_FIELDS.map((f) => (
-                            <td key={f.key} className="py-2 px-1 text-center">
+                      {rosterAthletes.map((a) => {
+                        const v = values[a.id] ?? EMPTY_STATS;
+                        const points = computePoints(v);
+                        const reboundsTotal = computeReboundsTotal(v);
+                        const eff = computeEff({ athleteId: a.id, ...v });
+                        return (
+                          <tr key={a.id} className="border-t border-border-light">
+                            <td className="py-2 pr-2 text-zinc-800 whitespace-nowrap sticky left-0 bg-white">
+                              {a.name}
+                            </td>
+                            {SHOT_FIELDS.map((f) => (
+                              <Fragment key={f.label}>
+                                <td className="py-2 px-1">
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    value={v[f.attempted]}
+                                    onChange={(e) => updateValue(a.id, f.attempted, e.target.value)}
+                                    className="w-10 text-center border border-border-input rounded-md py-1"
+                                  />
+                                </td>
+                                <td className="py-2 px-1">
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    value={v[f.made]}
+                                    onChange={(e) => updateValue(a.id, f.made, e.target.value)}
+                                    className="w-10 text-center border border-border-input rounded-md py-1"
+                                  />
+                                </td>
+                                <td className="py-2 px-1 text-center text-muted-2 text-xs">
+                                  {pct(v[f.made], v[f.attempted]).toFixed(0)}%
+                                </td>
+                              </Fragment>
+                            ))}
+                            <td className="py-2 px-1">
                               <input
                                 type="number"
                                 min={0}
-                                value={values[a.id]?.[f.key] ?? 0}
-                                onChange={(e) => updateValue(a.id, f.key, e.target.value)}
+                                value={v.reboundsDef}
+                                onChange={(e) => updateValue(a.id, "reboundsDef", e.target.value)}
                                 className="w-12 text-center border border-border-input rounded-md py-1"
                               />
                             </td>
-                          ))}
-                          {SHOT_FIELDS.map((f) => (
-                            <td key={f.label} className="py-2 px-1">
-                              <div className="flex items-center justify-center gap-1">
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={values[a.id]?.[f.made] ?? 0}
-                                  onChange={(e) => updateValue(a.id, f.made, e.target.value)}
-                                  className="w-10 text-center border border-border-input rounded-md py-1"
-                                />
-                                <span className="text-muted-2">/</span>
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={values[a.id]?.[f.attempted] ?? 0}
-                                  onChange={(e) => updateValue(a.id, f.attempted, e.target.value)}
-                                  className="w-10 text-center border border-border-input rounded-md py-1"
-                                />
-                              </div>
+                            <td className="py-2 px-1">
+                              <input
+                                type="number"
+                                min={0}
+                                value={v.reboundsOff}
+                                onChange={(e) => updateValue(a.id, "reboundsOff", e.target.value)}
+                                className="w-12 text-center border border-border-input rounded-md py-1"
+                              />
                             </td>
-                          ))}
-                        </tr>
-                      ))}
+                            <td className="py-2 px-1 text-center font-bold text-ink">
+                              {reboundsTotal}
+                            </td>
+                            {OTHER_FIELDS.map((f) => (
+                              <td key={f.key} className="py-2 px-1">
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={v[f.key]}
+                                  onChange={(e) => updateValue(a.id, f.key, e.target.value)}
+                                  className="w-12 text-center border border-border-input rounded-md py-1"
+                                />
+                              </td>
+                            ))}
+                            <td className="py-2 px-1 text-center font-bold text-brand-red">
+                              {points}
+                            </td>
+                            <td className="py-2 px-1 text-center font-bold text-ink">{eff}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

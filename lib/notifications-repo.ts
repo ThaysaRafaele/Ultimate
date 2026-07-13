@@ -1,7 +1,8 @@
 import { and, desc, eq, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { athletes, games, gameStats, notifications } from "@/lib/schema";
-import type { GameStatRow } from "@/lib/stats-repo";
+import { computePoints, computeReboundsTotal } from "@/lib/stats-calc";
+import type { GameStatRow } from "@/lib/stats-calc";
 
 const STAT_TYPES = ["points", "rebounds", "assists", "steals"] as const;
 type StatType = (typeof STAT_TYPES)[number];
@@ -81,8 +82,8 @@ export async function checkAndRecordPersonalRecords(
 
     const [row] = await db
       .select({
-        maxPoints: sql<string>`coalesce(max(${gameStats.points}), -1)`,
-        maxRebounds: sql<string>`coalesce(max(${gameStats.rebounds}), -1)`,
+        maxPoints: sql<string>`coalesce(max(${gameStats.fg2Made} * 2 + ${gameStats.fg3Made} * 3 + ${gameStats.ftMade}), -1)`,
+        maxRebounds: sql<string>`coalesce(max(${gameStats.reboundsOff} + ${gameStats.reboundsDef}), -1)`,
         maxAssists: sql<string>`coalesce(max(${gameStats.assists}), -1)`,
         maxSteals: sql<string>`coalesce(max(${gameStats.steals}), -1)`,
         gamesPlayed: sql<string>`count(*)`,
@@ -100,12 +101,21 @@ export async function checkAndRecordPersonalRecords(
       steals: Number(row.maxSteals),
     };
 
-    const toInsert = STAT_TYPES.filter((t) => s[t] > 0 && s[t] > prevBest[t]).map((statType) => ({
-      athleteId: s.athleteId,
-      gameId,
-      statType,
-      value: s[statType],
-    }));
+    const current: Record<StatType, number> = {
+      points: computePoints(s),
+      rebounds: computeReboundsTotal(s),
+      assists: s.assists,
+      steals: s.steals,
+    };
+
+    const toInsert = STAT_TYPES.filter((t) => current[t] > 0 && current[t] > prevBest[t]).map(
+      (statType) => ({
+        athleteId: s.athleteId,
+        gameId,
+        statType,
+        value: current[statType],
+      })
+    );
 
     if (toInsert.length > 0) {
       await db.insert(notifications).values(toInsert);

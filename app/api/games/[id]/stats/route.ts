@@ -72,10 +72,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       (s) =>
         s &&
         Number.isInteger(s.athleteId) &&
-        isNonNegativeInt(s.points) &&
-        isNonNegativeInt(s.rebounds) &&
+        isNonNegativeInt(s.reboundsOff) &&
+        isNonNegativeInt(s.reboundsDef) &&
         isNonNegativeInt(s.assists) &&
         isNonNegativeInt(s.steals) &&
+        isNonNegativeInt(s.blocks) &&
+        isNonNegativeInt(s.turnovers) &&
+        isNonNegativeInt(s.fouls) &&
         isNonNegativeInt(s.fg2Made) &&
         isNonNegativeInt(s.fg2Attempted) &&
         s.fg2Made <= s.fg2Attempted &&
