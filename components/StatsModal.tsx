@@ -161,6 +161,35 @@ export function StatsModal({
 
   const effectiveMvpId = mvpTouched ? boletim.mvpAthleteId : suggestedMvpId;
 
+  // Aviso não-bloqueante: só quando os 4 quartos de um lado estão preenchidos
+  // e a soma não bate com o placar final já registrado no jogo.
+  const quarterWarnings = useMemo(() => {
+    const { q1OurScore, q2OurScore, q3OurScore, q4OurScore, otOurScore } = boletim;
+    const { q1TheirScore, q2TheirScore, q3TheirScore, q4TheirScore, otTheirScore } = boletim;
+    const ourFilled = [q1OurScore, q2OurScore, q3OurScore, q4OurScore].every((v) => v != null);
+    const theirFilled = [q1TheirScore, q2TheirScore, q3TheirScore, q4TheirScore].every(
+      (v) => v != null
+    );
+
+    const warnings: string[] = [];
+    if (ourFilled && game.ourScore != null) {
+      const ourSum = q1OurScore! + q2OurScore! + q3OurScore! + q4OurScore! + (otOurScore ?? 0);
+      if (ourSum !== game.ourScore) {
+        warnings.push(`Nós: soma dos quartos é ${ourSum}, mas o placar final é ${game.ourScore}.`);
+      }
+    }
+    if (theirFilled && game.theirScore != null) {
+      const theirSum =
+        q1TheirScore! + q2TheirScore! + q3TheirScore! + q4TheirScore! + (otTheirScore ?? 0);
+      if (theirSum !== game.theirScore) {
+        warnings.push(
+          `Adversário: soma dos quartos é ${theirSum}, mas o placar final é ${game.theirScore}.`
+        );
+      }
+    }
+    return warnings;
+  }, [boletim, game.ourScore, game.theirScore]);
+
   function updateValue(athleteId: number, field: StatField, raw: string) {
     const n = raw === "" ? 0 : Math.max(0, Math.floor(Number(raw)));
     if (Number.isNaN(n)) return;
@@ -327,6 +356,15 @@ export function StatsModal({
                     )}
                   </div>
                 </div>
+                {quarterWarnings.length > 0 && (
+                  <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg px-3.5 py-2.5">
+                    {quarterWarnings.map((w) => (
+                      <p key={w} className="text-xs text-amber-800">
+                        ⚠ {w}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {rosterAthletes.length === 0 ? (

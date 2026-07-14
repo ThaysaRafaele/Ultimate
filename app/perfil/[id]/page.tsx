@@ -6,6 +6,7 @@ import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
 import { EditAthleteButton } from "@/components/EditAthleteButton";
 import { ToggleAthleteActiveButton } from "@/components/ToggleAthleteActiveButton";
+import { YearFilter } from "@/components/YearFilter";
 import { db } from "@/lib/db";
 import { athletes } from "@/lib/schema";
 import { getAllTeams } from "@/lib/teams-repo";
@@ -15,8 +16,10 @@ import { getAthleteAverages, getAthleteBestGame, getAthleteGameLog } from "@/lib
 
 export default async function PerfilPage({
   params,
+  searchParams,
 }: Readonly<{
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ year?: string }>;
 }>) {
   const { id } = await params;
   const athleteId = Number(id);
@@ -31,10 +34,19 @@ export default async function PerfilPage({
     athlete.teams.find((t) => activeTeams.some((at) => at.id === t)) ?? activeTeams[0]?.id ?? "";
   const teamLabels = athlete.teams.map((t) => findTeamLabel(allTeams, t)).join(", ");
 
+  const currentYear = new Date().getFullYear();
+  const entryYearNum = Number(athlete.entryDate.slice(0, 4));
+  const yearOptions: number[] = [];
+  for (let y = currentYear; y >= entryYearNum; y--) yearOptions.push(y);
+
+  const { year: yearParam } = await searchParams;
+  const selectedYear =
+    yearParam && yearOptions.includes(Number(yearParam)) ? Number(yearParam) : null;
+
   const [averages, gameLog, bestGame] = await Promise.all([
-    getAthleteAverages(athlete.id),
-    getAthleteGameLog(athlete.id),
-    getAthleteBestGame(athlete.id),
+    getAthleteAverages(athlete.id, selectedYear),
+    getAthleteGameLog(athlete.id, selectedYear),
+    getAthleteBestGame(athlete.id, selectedYear),
   ]);
 
   return (
@@ -105,7 +117,14 @@ export default async function PerfilPage({
             </div>
 
             <div>
-              <div className="grid grid-cols-4 gap-3.5 mb-5">
+              <div className="flex items-center justify-between mb-3.5">
+                <div className="text-xs uppercase tracking-[0.08em] text-muted-2 font-semibold">
+                  {selectedYear ? `Temporada ${selectedYear}` : "Todo o período"}
+                </div>
+                <YearFilter years={yearOptions} selected={selectedYear} />
+              </div>
+
+              <div className="grid grid-cols-5 gap-3.5 mb-5">
                 <StatCard
                   label="Pontos / jogo"
                   value={averages ? averages.ppg.toFixed(1) : "—"}
@@ -114,13 +133,14 @@ export default async function PerfilPage({
                 <StatCard label="Rebotes / jogo" value={averages ? averages.rpg.toFixed(1) : "—"} />
                 <StatCard label="Assist. / jogo" value={averages ? averages.apg.toFixed(1) : "—"} />
                 <StatCard label="Roubos / jogo" value={averages ? averages.spg.toFixed(1) : "—"} />
+                <StatCard label="EFF / jogo" value={averages ? averages.effpg.toFixed(1) : "—"} />
               </div>
 
               {bestGame && (
                 <div className="bg-ink-deep rounded-2xl px-6 py-5 mb-5 flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <div className="text-xs uppercase tracking-[0.06em] text-brand-red font-bold mb-1">
-                      Melhor jogo
+                      {selectedYear ? `Melhor jogo em ${selectedYear}` : "Melhor jogo"}
                     </div>
                     <div className="font-heading font-bold text-xl uppercase text-white">
                       Ultimate <span className="text-muted-1 normal-case">vs</span> {bestGame.opponent}
@@ -130,10 +150,11 @@ export default async function PerfilPage({
                     </div>
                   </div>
                   <div className="flex gap-6">
-                    <BestGameStat label="Pts" value={bestGame.points} highlight />
+                    <BestGameStat label="Pts" value={bestGame.points} />
                     <BestGameStat label="Reb" value={bestGame.rebounds} />
                     <BestGameStat label="Ast" value={bestGame.assists} />
                     <BestGameStat label="Rou" value={bestGame.steals} />
+                    <BestGameStat label="EFF" value={bestGame.eff} highlight />
                   </div>
                 </div>
               )}
@@ -141,15 +162,16 @@ export default async function PerfilPage({
               {gameLog.length === 0 ? (
                 <div className="bg-white border border-border-light rounded-2xl p-11 text-center">
                   <div className="font-heading font-bold text-xl uppercase text-ink mb-2">
-                    Sem estatísticas ainda
+                    {selectedYear ? `Sem estatísticas em ${selectedYear}` : "Sem estatísticas ainda"}
                   </div>
                   <p className="text-sm text-muted-2 max-w-125 mx-auto">
-                    Quando o lançamento de estatísticas for feito para os jogos deste atleta, o
-                    histórico aparece aqui automaticamente.
+                    {selectedYear
+                      ? "Escolha outro ano ou selecione “Todos os anos” para ver o histórico completo."
+                      : "Quando o lançamento de estatísticas for feito para os jogos deste atleta, o histórico aparece aqui automaticamente."}
                   </p>
                 </div>
               ) : (
-                <div className="bg-white border border-border-light rounded-2xl overflow-hidden">
+                <div className="bg-white border border-border-light rounded-2xl overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-zinc-50">
                       <tr className="text-left text-xs uppercase tracking-[0.06em] text-muted-2">
@@ -160,6 +182,10 @@ export default async function PerfilPage({
                         <th className="px-5 py-3 font-bold text-center">Reb</th>
                         <th className="px-5 py-3 font-bold text-center">Ast</th>
                         <th className="px-5 py-3 font-bold text-center">Rou</th>
+                        <th className="px-5 py-3 font-bold text-center">Toco</th>
+                        <th className="px-5 py-3 font-bold text-center">Erros</th>
+                        <th className="px-5 py-3 font-bold text-center">Faltas</th>
+                        <th className="px-5 py-3 font-bold text-center">EFF</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -172,6 +198,10 @@ export default async function PerfilPage({
                           <td className="px-5 py-3 text-center text-ink">{g.rebounds}</td>
                           <td className="px-5 py-3 text-center text-ink">{g.assists}</td>
                           <td className="px-5 py-3 text-center text-ink">{g.steals}</td>
+                          <td className="px-5 py-3 text-center text-ink">{g.blocks}</td>
+                          <td className="px-5 py-3 text-center text-ink">{g.turnovers}</td>
+                          <td className="px-5 py-3 text-center text-ink">{g.fouls}</td>
+                          <td className="px-5 py-3 text-center font-bold text-ink">{g.eff}</td>
                         </tr>
                       ))}
                     </tbody>
