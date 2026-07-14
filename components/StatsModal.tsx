@@ -268,7 +268,8 @@ export function StatsModal({
 
       for (const s of stats) {
         if (s.fg2Made > s.fg2Attempted || s.fg3Made > s.fg3Attempted || s.ftMade > s.ftAttempted) {
-          const athleteName = rosterAthletes.find((a) => a.id === s.athleteId)?.name ?? "";
+          const athlete = rosterAthletes.find((a) => a.id === s.athleteId);
+          const athleteName = athlete?.nickname || athlete?.name || "";
           throw new Error(
             `Arremessos certos não podem ser maiores que tentados (${athleteName}).`
           );
@@ -404,7 +405,7 @@ export function StatsModal({
                       <option value="">Nenhum</option>
                       {rosterAthletes.map((a) => (
                         <option key={a.id} value={a.id}>
-                          {a.name}
+                          {a.nickname || a.name}
                           {!mvpTouched && a.id === suggestedMvpId ? " (sugestão automática)" : ""}
                         </option>
                       ))}
@@ -475,7 +476,7 @@ export function StatsModal({
                         return (
                           <tr key={a.id} className="border-t border-border-light">
                             <td className="py-2 pr-2 text-zinc-800 whitespace-nowrap sticky left-0 bg-white">
-                              {a.name}
+                              {a.nickname || a.name}
                             </td>
                             {SHOT_FIELDS.map((f) => (
                               <Fragment key={f.label}>
