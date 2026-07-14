@@ -128,7 +128,7 @@ export function LineupModal({
                     onChange={() => toggle(a.id)}
                     className="accent-brand-red w-4 h-4"
                   />
-                  {a.name}
+                  {a.nickname || a.name}
                 </label>
               ))}
             </div>

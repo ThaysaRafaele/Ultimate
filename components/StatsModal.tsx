@@ -25,6 +25,24 @@ type Boletim = {
 };
 type QuarterField = Exclude<keyof Boletim, "mvpAthleteId">;
 
+// Não temos atleta a atleta do time adversário — o técnico preenche o total
+// da equipe direto, nas mesmas colunas da tabela de estatísticas.
+const OPP_FIELD_TO_API: Record<StatField, string> = {
+  reboundsOff: "oppReboundsOff",
+  reboundsDef: "oppReboundsDef",
+  assists: "oppAssists",
+  steals: "oppSteals",
+  blocks: "oppBlocks",
+  turnovers: "oppTurnovers",
+  fouls: "oppFouls",
+  fg2Made: "oppFg2Made",
+  fg2Attempted: "oppFg2Attempted",
+  fg3Made: "oppFg3Made",
+  fg3Attempted: "oppFg3Attempted",
+  ftMade: "oppFtMade",
+  ftAttempted: "oppFtAttempted",
+};
+
 const EMPTY_STATS: Omit<GameStatRow, "athleteId"> = {
   reboundsOff: 0,
   reboundsDef: 0,
@@ -87,6 +105,7 @@ export function StatsModal({
   const [rosterAthletes, setRosterAthletes] = useState<Athlete[]>([]);
   const [values, setValues] = useState<Record<number, Omit<GameStatRow, "athleteId">>>({});
   const [boletim, setBoletim] = useState<Boletim>(EMPTY_BOLETIM);
+  const [opponentStats, setOpponentStats] = useState<Omit<GameStatRow, "athleteId">>(EMPTY_STATS);
   const [mvpTouched, setMvpTouched] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -134,6 +153,11 @@ export function StatsModal({
       if (statsData.boletim) {
         setBoletim(statsData.boletim);
         setMvpTouched(statsData.boletim.mvpAthleteId != null);
+        const opp = { ...EMPTY_STATS };
+        for (const key of Object.keys(OPP_FIELD_TO_API) as StatField[]) {
+          opp[key] = statsData.boletim[OPP_FIELD_TO_API[key]] ?? 0;
+        }
+        setOpponentStats(opp);
       }
       setLoading(false);
     });
@@ -174,6 +198,10 @@ export function StatsModal({
     return { sums, points: computePoints(sums), reboundsTotal: computeReboundsTotal(sums) };
   }, [values, rosterAthletes]);
 
+  const opponentPoints = computePoints(opponentStats);
+  const opponentReboundsTotal = computeReboundsTotal(opponentStats);
+  const opponentEff = computeEff({ athleteId: 0, ...opponentStats });
+
   // Aviso não-bloqueante: só quando os 4 quartos de um lado estão preenchidos
   // e a soma não bate com o placar final já registrado no jogo.
   const quarterWarnings = useMemo(() => {
@@ -212,6 +240,12 @@ export function StatsModal({
     }));
   }
 
+  function updateOpponentValue(field: StatField, raw: string) {
+    const n = raw === "" ? 0 : Math.max(0, Math.floor(Number(raw)));
+    if (Number.isNaN(n)) return;
+    setOpponentStats((prev) => ({ ...prev, [field]: n }));
+  }
+
   function updateQuarter(field: QuarterField, raw: string) {
     const n = raw === "" ? null : Math.max(0, Math.floor(Number(raw)));
     if (n !== null && Number.isNaN(n)) return;
@@ -240,13 +274,27 @@ export function StatsModal({
           );
         }
       }
+      if (
+        opponentStats.fg2Made > opponentStats.fg2Attempted ||
+        opponentStats.fg3Made > opponentStats.fg3Attempted ||
+        opponentStats.ftMade > opponentStats.ftAttempted
+      ) {
+        throw new Error("Arremessos certos do adversário não podem ser maiores que tentados.");
+      }
+
+      const oppPayload: Record<string, number> = {};
+      for (const key of Object.keys(OPP_FIELD_TO_API) as StatField[]) {
+        oppPayload[OPP_FIELD_TO_API[key]] = opponentStats[key];
+      }
 
       const res = await fetch(`/api/games/${game.id}/stats`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           stats,
-          boletim: gameHappened ? { ...boletim, mvpAthleteId: effectiveMvpId } : undefined,
+          boletim: gameHappened
+            ? { ...boletim, mvpAthleteId: effectiveMvpId, ...oppPayload }
+            : undefined,
         }),
       });
       if (!res.ok) {
@@ -523,6 +571,74 @@ export function StatsModal({
                           {columnTotals.points}
                         </td>
                         <td className="py-2 px-1 text-center text-muted-2">—</td>
+                      </tr>
+                      <tr className="border-t-2 border-dashed border-border-input bg-bg-subtle">
+                        <td className="py-2 pr-2 font-bold text-[13px] uppercase tracking-[0.04em] text-muted-3 whitespace-nowrap sticky left-0 bg-bg-subtle">
+                          Adversário
+                        </td>
+                        {SHOT_FIELDS.map((f) => (
+                          <Fragment key={f.label}>
+                            <td className="py-2 px-1 bg-bg-subtle">
+                              <input
+                                type="number"
+                                min={0}
+                                value={opponentStats[f.attempted]}
+                                onChange={(e) => updateOpponentValue(f.attempted, e.target.value)}
+                                className="w-10 text-center border border-border-input rounded-md py-1 bg-white"
+                              />
+                            </td>
+                            <td className="py-2 px-1 bg-bg-subtle">
+                              <input
+                                type="number"
+                                min={0}
+                                value={opponentStats[f.made]}
+                                onChange={(e) => updateOpponentValue(f.made, e.target.value)}
+                                className="w-10 text-center border border-border-input rounded-md py-1 bg-white"
+                              />
+                            </td>
+                            <td className="py-2 px-1 text-center text-muted-2 text-xs bg-bg-subtle">
+                              {pct(opponentStats[f.made], opponentStats[f.attempted]).toFixed(0)}%
+                            </td>
+                          </Fragment>
+                        ))}
+                        <td className="py-2 px-1 bg-bg-subtle">
+                          <input
+                            type="number"
+                            min={0}
+                            value={opponentStats.reboundsDef}
+                            onChange={(e) => updateOpponentValue("reboundsDef", e.target.value)}
+                            className="w-12 text-center border border-border-input rounded-md py-1 bg-white"
+                          />
+                        </td>
+                        <td className="py-2 px-1 bg-bg-subtle">
+                          <input
+                            type="number"
+                            min={0}
+                            value={opponentStats.reboundsOff}
+                            onChange={(e) => updateOpponentValue("reboundsOff", e.target.value)}
+                            className="w-12 text-center border border-border-input rounded-md py-1 bg-white"
+                          />
+                        </td>
+                        <td className="py-2 px-1 text-center font-bold text-ink bg-bg-subtle">
+                          {opponentReboundsTotal}
+                        </td>
+                        {OTHER_FIELDS.map((f) => (
+                          <td key={f.key} className="py-2 px-1 bg-bg-subtle">
+                            <input
+                              type="number"
+                              min={0}
+                              value={opponentStats[f.key]}
+                              onChange={(e) => updateOpponentValue(f.key, e.target.value)}
+                              className="w-12 text-center border border-border-input rounded-md py-1 bg-white"
+                            />
+                          </td>
+                        ))}
+                        <td className="py-2 px-1 text-center font-bold text-brand-red bg-bg-subtle">
+                          {opponentPoints}
+                        </td>
+                        <td className="py-2 px-1 text-center font-bold text-ink bg-bg-subtle">
+                          {opponentEff}
+                        </td>
                       </tr>
                     </tfoot>
                   </table>
