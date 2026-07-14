@@ -41,8 +41,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   const [updated] = await db
     .update(athletes)
     .set({
-      name: name.trim(),
-      nickname: nickname?.trim() || null,
+      name: name.trim().toUpperCase(),
+      nickname: nickname?.trim() ? nickname.trim().toUpperCase() : null,
       teams,
       position,
       number: number ? Number(number) : null,

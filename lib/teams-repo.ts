@@ -28,3 +28,19 @@ export async function setTeamActive(id: string, active: boolean): Promise<TeamRo
   const [updated] = await db.update(teams).set({ active }).where(eq(teams.id, id)).returning();
   return updated ?? null;
 }
+
+// Only label/maxAge are editable — the id (slug) is generated once at
+// creation and referenced by games.team and athletes.teams, so it never
+// changes after the fact.
+export async function updateTeam(
+  id: string,
+  label: string,
+  maxAge: number | null
+): Promise<TeamRow | null> {
+  const [updated] = await db
+    .update(teams)
+    .set({ label: label.trim(), maxAge })
+    .where(eq(teams.id, id))
+    .returning();
+  return updated ?? null;
+}
