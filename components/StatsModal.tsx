@@ -161,6 +161,19 @@ export function StatsModal({
 
   const effectiveMvpId = mvpTouched ? boletim.mvpAthleteId : suggestedMvpId;
 
+  // Linha "Total" no rodapé, somando cada coluna — igual à planilha do
+  // técnico (que também deixa o EFF do total em branco, então fazemos o mesmo).
+  const columnTotals = useMemo(() => {
+    const sums: Omit<GameStatRow, "athleteId"> = { ...EMPTY_STATS };
+    for (const a of rosterAthletes) {
+      const v = values[a.id] ?? EMPTY_STATS;
+      for (const key of Object.keys(sums) as StatField[]) {
+        sums[key] += v[key];
+      }
+    }
+    return { sums, points: computePoints(sums), reboundsTotal: computeReboundsTotal(sums) };
+  }, [values, rosterAthletes]);
+
   // Aviso não-bloqueante: só quando os 4 quartos de um lado estão preenchidos
   // e a soma não bate com o placar final já registrado no jogo.
   const quarterWarnings = useMemo(() => {
@@ -481,6 +494,37 @@ export function StatsModal({
                         );
                       })}
                     </tbody>
+                    <tfoot>
+                      <tr className="border-t-2 border-border-input font-bold text-ink">
+                        <td className="py-2 pr-2 whitespace-nowrap sticky left-0 bg-white">Total</td>
+                        {SHOT_FIELDS.map((f) => (
+                          <Fragment key={f.label}>
+                            <td className="py-2 px-1 text-center">
+                              {columnTotals.sums[f.attempted]}
+                            </td>
+                            <td className="py-2 px-1 text-center">{columnTotals.sums[f.made]}</td>
+                            <td className="py-2 px-1 text-center text-xs">
+                              {pct(columnTotals.sums[f.made], columnTotals.sums[f.attempted]).toFixed(
+                                0
+                              )}
+                              %
+                            </td>
+                          </Fragment>
+                        ))}
+                        <td className="py-2 px-1 text-center">{columnTotals.sums.reboundsDef}</td>
+                        <td className="py-2 px-1 text-center">{columnTotals.sums.reboundsOff}</td>
+                        <td className="py-2 px-1 text-center">{columnTotals.reboundsTotal}</td>
+                        {OTHER_FIELDS.map((f) => (
+                          <td key={f.key} className="py-2 px-1 text-center">
+                            {columnTotals.sums[f.key]}
+                          </td>
+                        ))}
+                        <td className="py-2 px-1 text-center text-brand-red">
+                          {columnTotals.points}
+                        </td>
+                        <td className="py-2 px-1 text-center text-muted-2">—</td>
+                      </tr>
+                    </tfoot>
                   </table>
                 </div>
               )}

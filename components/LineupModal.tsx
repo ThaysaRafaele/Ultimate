@@ -20,6 +20,17 @@ export function LineupModal({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  // Busca só entra em ação a partir de 3 caracteres, pra não filtrar tudo
+  // fora a cada tecla enquanto o técnico ainda está começando a digitar.
+  const term = search.trim().toLowerCase();
+  const visibleAthletes =
+    term.length >= 3
+      ? teamAthletes.filter(
+          (a) => a.name.toLowerCase().includes(term) || a.nickname?.toLowerCase().includes(term)
+        )
+      : teamAthletes;
 
   useEffect(() => {
     let cancelled = false;
@@ -89,13 +100,24 @@ export function LineupModal({
         </div>
 
         <div className="p-[26px] overflow-y-auto flex-1">
+          {!loading && teamAthletes.length > 0 && (
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar atleta (mín. 3 letras)…"
+              className="w-full h-10 border-[1.5px] border-border-input rounded-lg px-3.5 text-sm text-zinc-800 mb-3.5"
+            />
+          )}
           {loading ? (
             <p className="text-muted-2 text-sm">Carregando…</p>
           ) : teamAthletes.length === 0 ? (
             <p className="text-muted-2 text-sm">Nenhum atleta ativo nessa equipe ainda.</p>
+          ) : visibleAthletes.length === 0 ? (
+            <p className="text-muted-2 text-sm">Nenhum atleta encontrado para &ldquo;{search.trim()}&rdquo;.</p>
           ) : (
             <div className="grid grid-cols-2 gap-2">
-              {teamAthletes.map((a) => (
+              {visibleAthletes.map((a) => (
                 <label
                   key={a.id}
                   className="flex items-center gap-2 text-[14px] text-zinc-800 cursor-pointer"
