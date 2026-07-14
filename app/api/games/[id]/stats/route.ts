@@ -32,6 +32,19 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       otOurScore: game.otOurScore,
       otTheirScore: game.otTheirScore,
       mvpAthleteId: game.mvpAthleteId,
+      oppReboundsOff: game.oppReboundsOff,
+      oppReboundsDef: game.oppReboundsDef,
+      oppAssists: game.oppAssists,
+      oppSteals: game.oppSteals,
+      oppBlocks: game.oppBlocks,
+      oppTurnovers: game.oppTurnovers,
+      oppFouls: game.oppFouls,
+      oppFg2Made: game.oppFg2Made,
+      oppFg2Attempted: game.oppFg2Attempted,
+      oppFg3Made: game.oppFg3Made,
+      oppFg3Attempted: game.oppFg3Attempted,
+      oppFtMade: game.oppFtMade,
+      oppFtAttempted: game.oppFtAttempted,
     },
   });
 }
@@ -55,6 +68,22 @@ const QUARTER_FIELDS = [
   "q4TheirScore",
   "otOurScore",
   "otTheirScore",
+] as const;
+
+const OPPONENT_STAT_FIELDS = [
+  "oppReboundsOff",
+  "oppReboundsDef",
+  "oppAssists",
+  "oppSteals",
+  "oppBlocks",
+  "oppTurnovers",
+  "oppFouls",
+  "oppFg2Made",
+  "oppFg2Attempted",
+  "oppFg3Made",
+  "oppFg3Attempted",
+  "oppFtMade",
+  "oppFtAttempted",
 ] as const;
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -98,6 +127,16 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     boletim !== null &&
     (typeof boletim !== "object" ||
       !QUARTER_FIELDS.every((f) => isNonNegativeIntOrNull(boletim[f])) ||
+      !OPPONENT_STAT_FIELDS.every((f) => isNonNegativeIntOrNull(boletim[f])) ||
+      (isNonNegativeInt(boletim.oppFg2Made) &&
+        isNonNegativeInt(boletim.oppFg2Attempted) &&
+        boletim.oppFg2Made > boletim.oppFg2Attempted) ||
+      (isNonNegativeInt(boletim.oppFg3Made) &&
+        isNonNegativeInt(boletim.oppFg3Attempted) &&
+        boletim.oppFg3Made > boletim.oppFg3Attempted) ||
+      (isNonNegativeInt(boletim.oppFtMade) &&
+        isNonNegativeInt(boletim.oppFtAttempted) &&
+        boletim.oppFtMade > boletim.oppFtAttempted) ||
       !(boletim.mvpAthleteId === null ||
         boletim.mvpAthleteId === undefined ||
         Number.isInteger(boletim.mvpAthleteId)))
@@ -161,6 +200,19 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         otOurScore: boletim.otOurScore ?? null,
         otTheirScore: boletim.otTheirScore ?? null,
         mvpAthleteId: boletim.mvpAthleteId ?? null,
+        oppReboundsOff: boletim.oppReboundsOff ?? null,
+        oppReboundsDef: boletim.oppReboundsDef ?? null,
+        oppAssists: boletim.oppAssists ?? null,
+        oppSteals: boletim.oppSteals ?? null,
+        oppBlocks: boletim.oppBlocks ?? null,
+        oppTurnovers: boletim.oppTurnovers ?? null,
+        oppFouls: boletim.oppFouls ?? null,
+        oppFg2Made: boletim.oppFg2Made ?? null,
+        oppFg2Attempted: boletim.oppFg2Attempted ?? null,
+        oppFg3Made: boletim.oppFg3Made ?? null,
+        oppFg3Attempted: boletim.oppFg3Attempted ?? null,
+        oppFtMade: boletim.oppFtMade ?? null,
+        oppFtAttempted: boletim.oppFtAttempted ?? null,
       })
       .where(eq(games.id, gameId));
   }

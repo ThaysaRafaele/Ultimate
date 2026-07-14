@@ -28,7 +28,8 @@ export function computeReboundsTotal(s: Pick<GameStatRow, "reboundsOff" | "rebou
   return s.reboundsOff + s.reboundsDef;
 }
 
-// EFF (estilo NBA) = (pts + reb + ast + roubos + tocos) - (arremessos errados + erros).
+// EFF = (pts + reb + ast + roubos + tocos) - (arremessos errados + erros + faltas).
+// Fórmula espelha exatamente a planilha do técnico (cada termo bate com uma coluna dela).
 export function computeEff(s: GameStatRow): number {
   const points = computePoints(s);
   const rebounds = computeReboundsTotal(s);
@@ -38,7 +39,8 @@ export function computeEff(s: GameStatRow): number {
     s.fg2Made +
     (s.fg3Attempted - s.fg3Made) +
     (s.ftAttempted - s.ftMade) +
-    s.turnovers;
+    s.turnovers +
+    s.fouls;
   return good - bad;
 }
 

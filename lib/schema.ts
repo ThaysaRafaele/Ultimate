@@ -55,6 +55,21 @@ export const games = pgTable("games", {
   otOurScore: integer("ot_our_score"),
   otTheirScore: integer("ot_their_score"),
   mvpAthleteId: integer("mvp_athlete_id"),
+  // Totais agregados do time adversário (não temos atleta a atleta do outro
+  // time, então o técnico preenche o total direto), mesmas colunas do boletim.
+  oppReboundsOff: integer("opp_rebounds_off"),
+  oppReboundsDef: integer("opp_rebounds_def"),
+  oppAssists: integer("opp_assists"),
+  oppSteals: integer("opp_steals"),
+  oppBlocks: integer("opp_blocks"),
+  oppTurnovers: integer("opp_turnovers"),
+  oppFouls: integer("opp_fouls"),
+  oppFg2Made: integer("opp_fg2_made"),
+  oppFg2Attempted: integer("opp_fg2_attempted"),
+  oppFg3Made: integer("opp_fg3_made"),
+  oppFg3Attempted: integer("opp_fg3_attempted"),
+  oppFtMade: integer("opp_ft_made"),
+  oppFtAttempted: integer("opp_ft_attempted"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
