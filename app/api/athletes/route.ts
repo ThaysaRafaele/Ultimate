@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
   const [created] = await db
     .insert(athletes)
     .values({
-      name: name.trim(),
-      nickname: nickname?.trim() || null,
+      name: name.trim().toUpperCase(),
+      nickname: nickname?.trim() ? nickname.trim().toUpperCase() : null,
       teams,
       position,
       number: number ? Number(number) : null,
