@@ -18,6 +18,12 @@ export function Header({
       <div className="flex items-center gap-5">
         <NotificationsBell />
         <Link
+          href="/campeonatos"
+          className="text-muted-1 font-semibold text-[13px] uppercase tracking-[0.04em] hover:text-white"
+        >
+          Gerenciar campeonatos
+        </Link>
+        <Link
           href="/times"
           className="text-muted-1 font-semibold text-[13px] uppercase tracking-[0.04em] hover:text-white"
         >
