@@ -41,7 +41,7 @@ export function AthletesRoster({
 
   return (
     <>
-      <div className="flex gap-3.5 mb-6">
+      <div className="flex gap-3.5 max-md:flex-col mb-6">
         <div className="bg-white border border-border-light rounded-[10px] px-5.5 py-4 flex-1">
           <div className="text-xs uppercase tracking-[0.08em] text-muted-2 font-semibold">
             {ageFilter === "todas" && term.length < 3 ? "Total no elenco" : "Atletas filtrados"}
@@ -54,7 +54,7 @@ export function AthletesRoster({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar atleta (mín. 3 letras)…"
-            className="h-10 w-56 border-[1.5px] border-border-input rounded-lg px-3 text-[15px] text-zinc-800"
+            className="h-10 w-56 max-md:w-full border-[1.5px] border-border-input rounded-lg px-3 text-[15px] text-zinc-800"
           />
         </div>
         <div className="bg-white border border-border-light rounded-[10px] px-5.5 py-4 flex items-center gap-2.5">
@@ -64,7 +64,7 @@ export function AthletesRoster({
           <select
             value={ageFilter}
             onChange={(e) => setAgeFilter(e.target.value as AgeFilterValue)}
-            className="h-10 border-[1.5px] border-border-input rounded-lg px-3 text-[15px] text-zinc-800 bg-white cursor-pointer"
+            className="h-10 border-[1.5px] border-border-input rounded-lg px-3 text-[15px] text-zinc-800 bg-white cursor-pointer max-md:flex-1"
           >
             {AGE_FILTER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -82,7 +82,7 @@ export function AthletesRoster({
             : "Nenhum atleta encontrado com esse filtro."}
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 max-md:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-md:gap-2.5">
           {filtered.map((athlete) => (
             <AthleteCard
               key={athlete.id}

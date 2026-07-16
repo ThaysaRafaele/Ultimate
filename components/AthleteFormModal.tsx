@@ -216,11 +216,11 @@ export function AthleteFormModal({
 
   return (
     <div
-      className="fixed inset-0 bg-ink-deep/60 backdrop-blur-[2px] flex items-center justify-center z-50"
+      className="fixed inset-0 bg-ink-deep/60 backdrop-blur-[2px] flex items-center justify-center max-md:items-end z-50"
       onClick={onClose}
     >
       <div
-        className="bg-white w-145 rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+        className="bg-white w-145 rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto max-md:w-full max-md:rounded-none max-md:rounded-t-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-ink-deep px-[26px] py-5 flex items-center justify-between">
@@ -295,7 +295,7 @@ export function AthleteFormModal({
             </div>
           )}
 
-          <div className="flex gap-3.5 mb-4">
+          <div className="flex gap-3.5 max-md:flex-col mb-4">
             <div className="flex-1">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Nome completo
@@ -307,7 +307,7 @@ export function AthleteFormModal({
                 className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
               />
             </div>
-            <div className="w-40">
+            <div className="w-40 max-md:w-full">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Apelido
               </label>
@@ -323,7 +323,7 @@ export function AthleteFormModal({
           <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
             Times (pode marcar mais de um)
           </label>
-          <div className="w-full border-[1.5px] border-border-input rounded-lg px-3.5 py-3 mb-4 grid grid-cols-2 gap-x-3 gap-y-2">
+          <div className="w-full border-[1.5px] border-border-input rounded-lg px-3.5 py-3 mb-4 grid grid-cols-2 max-md:grid-cols-1 gap-x-3 gap-y-2">
             {teams.map((t) => (
               <label
                 key={t.id}
@@ -344,7 +344,7 @@ export function AthleteFormModal({
             ))}
           </div>
 
-          <div className="flex gap-3.5 mb-4">
+          <div className="flex gap-3.5 max-md:flex-col mb-4">
             <div className="flex-1">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 E-mail
@@ -357,7 +357,7 @@ export function AthleteFormModal({
                 className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
               />
             </div>
-            <div className="w-52.5">
+            <div className="w-52.5 max-md:w-full">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Contato
               </label>
@@ -376,8 +376,8 @@ export function AthleteFormModal({
             </div>
           </div>
 
-          <div className="flex gap-3.5 mb-4">
-            <div className="flex-1">
+          <div className="flex gap-3.5 max-md:flex-wrap mb-4">
+            <div className="flex-1 max-md:basis-full">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Posição
               </label>
@@ -393,7 +393,7 @@ export function AthleteFormModal({
                 ))}
               </select>
             </div>
-            <div className="w-24">
+            <div className="w-24 max-md:flex-1">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Número
               </label>
@@ -405,7 +405,7 @@ export function AthleteFormModal({
                 className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
               />
             </div>
-            <div className="w-24">
+            <div className="w-24 max-md:flex-1">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Altura
               </label>
@@ -417,7 +417,7 @@ export function AthleteFormModal({
                 className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
               />
             </div>
-            <div className="w-24">
+            <div className="w-24 max-md:flex-1">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Calçado
               </label>

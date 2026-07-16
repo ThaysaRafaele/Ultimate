@@ -2,24 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-
-type NavItem = {
-  label: string;
-  href: string | null;
-  isActive: (pathname: string) => boolean;
-};
-
-const NAV_ITEMS: NavItem[] = [
-  {
-    label: "Atletas",
-    href: "/",
-    isActive: (p) => p === "/" || p.startsWith("/importar") || p.startsWith("/perfil"),
-  },
-  { label: "Jogos", href: "/jogos", isActive: (p) => p.startsWith("/jogos") },
-  { label: "Escalação", href: "/escalacao", isActive: (p) => p.startsWith("/escalacao") },
-  { label: "Estatísticas", href: "/estatisticas", isActive: (p) => p.startsWith("/estatisticas") },
-  { label: "Visão Geral", href: null, isActive: () => false },
-];
+import { NAV_ITEMS } from "@/lib/nav-items";
 
 export function NavBar() {
   const pathname = usePathname();
@@ -27,7 +10,7 @@ export function NavBar() {
   const team = searchParams.get("team");
 
   return (
-    <nav className="bg-brand-red h-[50px] flex items-stretch px-6 flex-shrink-0">
+    <nav className="bg-brand-red h-[50px] max-md:hidden flex items-stretch px-6 flex-shrink-0">
       {NAV_ITEMS.map((item) => {
         if (!item.href) {
           return (

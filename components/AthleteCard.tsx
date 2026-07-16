@@ -15,9 +15,9 @@ export function AthleteCard({
   return (
     <Link
       href={`/perfil/${athlete.id}`}
-      className="bg-white border border-border-light rounded-xl overflow-hidden block transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(0,0,0,.10)]"
+      className="bg-white border border-border-light rounded-xl overflow-hidden block max-md:flex max-md:items-center max-md:gap-3.5 max-md:p-3 transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(0,0,0,.10)]"
     >
-      <div className="h-33 bg-charcoal relative flex items-center justify-center">
+      <div className="max-md:hidden h-33 bg-charcoal relative flex items-center justify-center">
         {athlete.photoUrl ? (
           <Image
             src={athlete.photoUrl}
@@ -35,11 +35,11 @@ export function AthleteCard({
           {numLabel(athlete.number)}
         </div>
       </div>
-      <div className="px-4 pt-3.5 pb-4">
+      <div className="max-md:hidden px-4 pt-3.5 pb-4">
         <div className="font-heading font-bold text-xl uppercase text-ink leading-tight">
           {athlete.nickname || athlete.name}
         </div>
-        <div className="flex items-center justify-between mt-1.5">
+        <div className="flex items-center justify-between flex-wrap gap-x-2 gap-y-0.5 mt-1.5">
           <span className="text-[13px] font-semibold text-brand-red uppercase tracking-[0.04em]">
             {athlete.position}
           </span>
@@ -50,6 +50,23 @@ export function AthleteCard({
         </div>
         {teamLabel && <div className="text-xs text-muted-2 mt-1">{teamLabel}</div>}
       </div>
+
+      <div className="hidden max-md:flex w-12 h-12 rounded-full bg-charcoal border-2 border-brand-red items-center justify-center text-white font-heading font-bold text-base shrink-0">
+        {initials(athlete.name)}
+      </div>
+      <div className="hidden max-md:block flex-1 min-w-0">
+        <div className="font-heading font-bold text-lg uppercase text-ink leading-tight truncate">
+          {athlete.nickname || athlete.name}
+        </div>
+        <div className="text-xs text-brand-red font-semibold uppercase">
+          {athlete.position} · {numLabel(athlete.number)}
+        </div>
+        <div className="text-xs text-muted-2">
+          Desde {entryYear(athlete.entryDate)}
+          {age != null && ` · ${age} anos`}
+        </div>
+      </div>
+      <span className="hidden max-md:block text-border-dash text-xl">›</span>
     </Link>
   );
 }

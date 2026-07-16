@@ -107,27 +107,29 @@ function ChampionshipRowItem({
   if (editing) {
     return (
       <div className="bg-white border border-border-light rounded-lg px-4 py-3">
-        <div className="flex gap-2.5">
+        <div className="flex gap-2.5 max-md:flex-col">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="flex-1 h-10 border-[1.5px] border-border-input rounded-lg px-3 text-sm text-zinc-800"
           />
-          <button
-            type="button"
-            onClick={onSaveRename}
-            disabled={saving}
-            className="h-10 px-3.5 bg-brand-red text-white border-none rounded-lg font-bold text-xs uppercase cursor-pointer disabled:opacity-60"
-          >
-            {saving ? "Salvando…" : "Salvar"}
-          </button>
-          <button
-            type="button"
-            onClick={onCancelRename}
-            className="h-10 px-3.5 bg-white border-[1.5px] border-border-input rounded-lg font-bold text-xs uppercase cursor-pointer text-ink"
-          >
-            Cancelar
-          </button>
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={onSaveRename}
+              disabled={saving}
+              className="h-10 px-3.5 max-md:flex-1 bg-brand-red text-white border-none rounded-lg font-bold text-xs uppercase cursor-pointer disabled:opacity-60"
+            >
+              {saving ? "Salvando…" : "Salvar"}
+            </button>
+            <button
+              type="button"
+              onClick={onCancelRename}
+              className="h-10 px-3.5 max-md:flex-1 bg-white border-[1.5px] border-border-input rounded-lg font-bold text-xs uppercase cursor-pointer text-ink"
+            >
+              Cancelar
+            </button>
+          </div>
         </div>
         {error && <p className="text-brand-red text-xs mt-2">{error}</p>}
       </div>
@@ -140,7 +142,7 @@ function ChampionshipRowItem({
         <div className="text-sm text-zinc-800 mb-2">
           Mesclar <span className="font-semibold">{championship.name}</span> em:
         </div>
-        <div className="flex gap-2.5">
+        <div className="flex gap-2.5 max-md:flex-col">
           <select
             value={mergeTargetId}
             onChange={(e) => setMergeTargetId(e.target.value)}
@@ -153,24 +155,26 @@ function ChampionshipRowItem({
               </option>
             ))}
           </select>
-          <button
-            type="button"
-            onClick={onConfirmMerge}
-            disabled={saving || !mergeTargetId}
-            className="h-10 px-3.5 bg-brand-red text-white border-none rounded-lg font-bold text-xs uppercase cursor-pointer disabled:opacity-60"
-          >
-            {saving ? "Mesclando…" : "Mesclar"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMerging(false);
-              setError(null);
-            }}
-            className="h-10 px-3.5 bg-white border-[1.5px] border-border-input rounded-lg font-bold text-xs uppercase cursor-pointer text-ink"
-          >
-            Cancelar
-          </button>
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={onConfirmMerge}
+              disabled={saving || !mergeTargetId}
+              className="h-10 px-3.5 max-md:flex-1 bg-brand-red text-white border-none rounded-lg font-bold text-xs uppercase cursor-pointer disabled:opacity-60"
+            >
+              {saving ? "Mesclando…" : "Mesclar"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMerging(false);
+                setError(null);
+              }}
+              className="h-10 px-3.5 max-md:flex-1 bg-white border-[1.5px] border-border-input rounded-lg font-bold text-xs uppercase cursor-pointer text-ink"
+            >
+              Cancelar
+            </button>
+          </div>
         </div>
         {error && <p className="text-brand-red text-xs mt-2">{error}</p>}
       </div>

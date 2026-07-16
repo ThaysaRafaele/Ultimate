@@ -12,7 +12,12 @@ import { athletes } from "@/lib/schema";
 import { getAllTeams } from "@/lib/teams-repo";
 import { findTeamLabel } from "@/lib/teams";
 import { entryYear, formatDateBR, initials, numLabel } from "@/lib/format";
-import { getAthleteAverages, getAthleteBestGame, getAthleteGameLog } from "@/lib/stats-repo";
+import {
+  getAthleteAverages,
+  getAthleteBestGame,
+  getAthleteGameLog,
+  type AthleteGameLogRow,
+} from "@/lib/stats-repo";
 
 export default async function PerfilPage({
   params,
@@ -53,7 +58,7 @@ export default async function PerfilPage({
     <div className="flex-1 flex flex-col">
       <Header team={headerTeamId} teams={activeTeams} />
       <NavBar />
-      <main className="flex-1 px-10 py-8 pb-14">
+      <main className="flex-1 px-10 max-md:px-4 py-8 max-md:py-5 pb-14">
         <div className="max-w-295 mx-auto">
           <Link
             href="/"
@@ -62,7 +67,7 @@ export default async function PerfilPage({
             ← Voltar para atletas
           </Link>
 
-          <div className="grid grid-cols-[320px_1fr] gap-6">
+          <div className="grid grid-cols-[320px_minmax(0,1fr)] max-md:grid-cols-1 gap-6 max-md:gap-4">
             <div className="bg-ink-deep rounded-2xl overflow-hidden self-start">
               <div className="h-65 bg-charcoal relative flex items-center justify-center">
                 <div className="absolute inset-0 bg-[repeating-linear-gradient(120deg,transparent_0_16px,rgba(255,255,255,.03)_16px_17px)]" />
@@ -124,7 +129,7 @@ export default async function PerfilPage({
                 <YearFilter years={yearOptions} selected={selectedYear} />
               </div>
 
-              <div className="grid grid-cols-5 gap-3.5 mb-5">
+              <div className="grid grid-cols-5 max-md:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 mb-5">
                 <StatCard
                   label="Pontos / jogo"
                   value={averages ? averages.ppg.toFixed(1) : "—"}
@@ -171,42 +176,50 @@ export default async function PerfilPage({
                   </p>
                 </div>
               ) : (
-                <div className="bg-white border border-border-light rounded-2xl overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-zinc-50">
-                      <tr className="text-left text-xs uppercase tracking-[0.06em] text-muted-2">
-                        <th className="px-5 py-3 font-bold">Data</th>
-                        <th className="px-5 py-3 font-bold">Campeonato</th>
-                        <th className="px-5 py-3 font-bold">Adversário</th>
-                        <th className="px-5 py-3 font-bold text-center">Pts</th>
-                        <th className="px-5 py-3 font-bold text-center">Reb</th>
-                        <th className="px-5 py-3 font-bold text-center">Ast</th>
-                        <th className="px-5 py-3 font-bold text-center">Rou</th>
-                        <th className="px-5 py-3 font-bold text-center">Toco</th>
-                        <th className="px-5 py-3 font-bold text-center">Erros</th>
-                        <th className="px-5 py-3 font-bold text-center">Faltas</th>
-                        <th className="px-5 py-3 font-bold text-center">EFF</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {gameLog.map((g) => (
-                        <tr key={g.gameId} className="border-t border-border-light">
-                          <td className="px-5 py-3 text-muted-1">{formatDateBR(g.gameDate)}</td>
-                          <td className="px-5 py-3 text-ink">{g.championshipName ?? "—"}</td>
-                          <td className="px-5 py-3 text-ink">{g.opponent}</td>
-                          <td className="px-5 py-3 text-center font-bold text-ink">{g.points}</td>
-                          <td className="px-5 py-3 text-center text-ink">{g.rebounds}</td>
-                          <td className="px-5 py-3 text-center text-ink">{g.assists}</td>
-                          <td className="px-5 py-3 text-center text-ink">{g.steals}</td>
-                          <td className="px-5 py-3 text-center text-ink">{g.blocks}</td>
-                          <td className="px-5 py-3 text-center text-ink">{g.turnovers}</td>
-                          <td className="px-5 py-3 text-center text-ink">{g.fouls}</td>
-                          <td className="px-5 py-3 text-center font-bold text-ink">{g.eff}</td>
+                <>
+                  <div className="max-md:hidden bg-white border border-border-light rounded-2xl overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-zinc-50">
+                        <tr className="text-left text-xs uppercase tracking-[0.06em] text-muted-2">
+                          <th className="px-5 py-3 font-bold">Data</th>
+                          <th className="px-5 py-3 font-bold">Campeonato</th>
+                          <th className="px-5 py-3 font-bold">Adversário</th>
+                          <th className="px-5 py-3 font-bold text-center">Pts</th>
+                          <th className="px-5 py-3 font-bold text-center">Reb</th>
+                          <th className="px-5 py-3 font-bold text-center">Ast</th>
+                          <th className="px-5 py-3 font-bold text-center">Rou</th>
+                          <th className="px-5 py-3 font-bold text-center">Toco</th>
+                          <th className="px-5 py-3 font-bold text-center">Erros</th>
+                          <th className="px-5 py-3 font-bold text-center">Faltas</th>
+                          <th className="px-5 py-3 font-bold text-center">EFF</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {gameLog.map((g) => (
+                          <tr key={g.gameId} className="border-t border-border-light">
+                            <td className="px-5 py-3 text-muted-1">{formatDateBR(g.gameDate)}</td>
+                            <td className="px-5 py-3 text-ink">{g.championshipName ?? "—"}</td>
+                            <td className="px-5 py-3 text-ink">{g.opponent}</td>
+                            <td className="px-5 py-3 text-center font-bold text-ink">{g.points}</td>
+                            <td className="px-5 py-3 text-center text-ink">{g.rebounds}</td>
+                            <td className="px-5 py-3 text-center text-ink">{g.assists}</td>
+                            <td className="px-5 py-3 text-center text-ink">{g.steals}</td>
+                            <td className="px-5 py-3 text-center text-ink">{g.blocks}</td>
+                            <td className="px-5 py-3 text-center text-ink">{g.turnovers}</td>
+                            <td className="px-5 py-3 text-center text-ink">{g.fouls}</td>
+                            <td className="px-5 py-3 text-center font-bold text-ink">{g.eff}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="hidden max-md:flex max-md:flex-col gap-2.5">
+                    {gameLog.map((g) => (
+                      <GameLogCard key={g.gameId} game={g} />
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -241,6 +254,41 @@ function StatCard({
       <div className={`font-heading font-bold text-4xl leading-none ${highlight ? "text-brand-red" : "text-ink"}`}>
         {value}
       </div>
+    </div>
+  );
+}
+
+function GameLogCard({ game: g }: Readonly<{ game: AthleteGameLogRow }>) {
+  return (
+    <div className="bg-white border border-border-light rounded-lg px-3.5 py-3">
+      <div className="flex justify-between">
+        <span className="font-bold text-ink text-[13px]">{formatDateBR(g.gameDate)}</span>
+        <span className="text-xs text-muted-1">{g.championshipName ?? "—"}</span>
+      </div>
+      <div className="text-[13px] text-charcoal mt-0.5 mb-2">vs {g.opponent}</div>
+      <div className="grid grid-cols-4 gap-2 text-center">
+        <GameLogStat label="Pts" value={g.points} highlight />
+        <GameLogStat label="Reb" value={g.rebounds} />
+        <GameLogStat label="Ast" value={g.assists} />
+        <GameLogStat label="Rou" value={g.steals} />
+        <GameLogStat label="Toco" value={g.blocks} />
+        <GameLogStat label="Erros" value={g.turnovers} />
+        <GameLogStat label="Faltas" value={g.fouls} />
+        <GameLogStat label="EFF" value={g.eff} highlight />
+      </div>
+    </div>
+  );
+}
+
+function GameLogStat({
+  label,
+  value,
+  highlight,
+}: Readonly<{ label: string; value: number; highlight?: boolean }>) {
+  return (
+    <div>
+      <div className="text-[9px] uppercase text-muted-2">{label}</div>
+      <div className={`font-bold text-xs ${highlight ? "text-brand-red" : "text-ink"}`}>{value}</div>
     </div>
   );
 }

@@ -60,21 +60,21 @@ export default async function AthletesPage({
     <div className="flex-1 flex flex-col">
       <Header team={teamId} teams={activeTeams} includeAllTeamsOption />
       <NavBar />
-      <main className="flex-1 px-10 py-8 pb-14">
+      <main className="flex-1 px-10 max-md:px-4 py-8 max-md:py-5 pb-14">
         <div className="max-w-295 mx-auto">
-          <div className="flex items-end justify-between mb-6">
+          <div className="flex items-end justify-between max-md:flex-col max-md:items-stretch max-md:gap-3 mb-6">
             <div>
               <div className="font-heading font-semibold text-[13px] tracking-[0.24em] text-brand-red uppercase">
                 {isAll ? "Todos os atletas" : findTeamLabel(allTeams, teamId)}
               </div>
-              <h1 className="font-heading font-bold text-[40px] uppercase mt-0.5 text-ink">
+              <h1 className="font-heading font-bold text-[40px] max-md:text-[28px] uppercase mt-0.5 text-ink">
                 Atletas cadastrados
               </h1>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 max-md:flex-col">
               <Link
                 href={`/importar?team=${formTeamId}`}
-                className="h-11.5 px-5 bg-white text-ink border-[1.5px] border-border-input rounded-lg font-bold text-sm uppercase tracking-[0.04em] cursor-pointer hover:border-ink flex items-center"
+                className="h-11.5 px-5 bg-white text-ink border-[1.5px] border-border-input rounded-lg font-bold text-sm uppercase tracking-[0.04em] cursor-pointer hover:border-ink flex items-center max-md:justify-center"
               >
                 Importar atletas
               </Link>

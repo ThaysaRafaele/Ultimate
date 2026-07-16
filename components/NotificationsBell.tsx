@@ -98,7 +98,7 @@ export function NotificationsBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-95 bg-white rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,.25)] overflow-hidden z-50 text-left">
+        <div className="absolute right-0 top-full mt-2 w-95 max-md:fixed max-md:inset-x-4 max-md:top-19 max-md:w-auto bg-white rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,.25)] overflow-hidden z-50 text-left">
           <div className="px-5 py-4 border-b border-border-light flex items-center justify-between">
             <div className="font-heading font-bold text-lg uppercase text-ink">Avisos</div>
             {unreadCount > 0 && (
