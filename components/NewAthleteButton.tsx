@@ -16,7 +16,7 @@ export function NewAthleteButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="h-[46px] px-[22px] bg-brand-red text-white border-none rounded-lg font-bold text-sm uppercase tracking-[0.04em] cursor-pointer hover:bg-brand-red-hover"
+        className="h-[46px] px-[22px] max-md:w-full bg-brand-red text-white border-none rounded-lg font-bold text-sm uppercase tracking-[0.04em] cursor-pointer hover:bg-brand-red-hover"
       >
         + Novo atleta
       </button>

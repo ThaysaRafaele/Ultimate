@@ -76,11 +76,11 @@ export function LineupModal({
 
   return (
     <div
-      className="fixed inset-0 bg-ink-deep/60 backdrop-blur-[2px] flex items-center justify-center z-50"
+      className="fixed inset-0 bg-ink-deep/60 backdrop-blur-[2px] flex items-center justify-center max-md:items-end z-50"
       onClick={onClose}
     >
       <div
-        className="bg-white w-125 rounded-2xl overflow-hidden max-h-[85vh] flex flex-col"
+        className="bg-white w-125 rounded-2xl overflow-hidden max-h-[85vh] flex flex-col max-md:w-full max-md:rounded-none max-md:rounded-t-2xl max-md:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-ink-deep px-[26px] py-5 flex items-center justify-between shrink-0">

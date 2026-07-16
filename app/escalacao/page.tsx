@@ -48,13 +48,13 @@ export default async function EscalacaoPage({
     <div className="flex-1 flex flex-col">
       <Header team={teamId} teams={activeTeams} />
       <NavBar />
-      <main className="flex-1 px-10 py-8 pb-14">
+      <main className="flex-1 px-10 max-md:px-4 py-8 max-md:py-5 pb-14">
         <div className="max-w-275 mx-auto">
           <div className="mb-6">
             <div className="font-heading font-semibold text-[13px] tracking-[0.24em] text-brand-red uppercase">
               Escalação · {findTeamLabel(allTeams, teamId)}
             </div>
-            <h1 className="font-heading font-bold text-[40px] uppercase mt-0.5 text-ink">
+            <h1 className="font-heading font-bold text-[40px] max-md:text-[28px] uppercase mt-0.5 text-ink">
               Escalação por jogo
             </h1>
           </div>

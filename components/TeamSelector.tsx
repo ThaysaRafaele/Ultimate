@@ -20,14 +20,14 @@ export function TeamSelector({
   }
 
   return (
-    <div className="flex items-center gap-2.5 pl-5 border-l border-charcoal-light">
-      <span className="font-heading font-semibold text-[11px] tracking-[0.16em] text-muted-1 uppercase">
+    <div className="flex items-center gap-2.5 pl-5 max-md:pl-2.5 border-l border-charcoal-light">
+      <span className="max-md:hidden font-heading font-semibold text-[11px] tracking-[0.16em] text-muted-1 uppercase">
         Equipe
       </span>
       <select
         value={value}
         onChange={onChange}
-        className="h-[38px] bg-charcoal text-white border border-zinc-border rounded-lg px-3 font-bold text-sm cursor-pointer"
+        className="h-[38px] max-md:h-8 max-md:text-xs bg-charcoal text-white border border-zinc-border rounded-lg px-3 font-bold text-sm cursor-pointer"
       >
         {includeAllOption && <option value={ALL_TEAMS_ID}>Todos</option>}
         {teams.map((t) => (

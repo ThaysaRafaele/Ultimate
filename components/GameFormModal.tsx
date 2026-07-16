@@ -118,11 +118,11 @@ export function GameFormModal({
 
   return (
     <div
-      className="fixed inset-0 bg-ink-deep/60 backdrop-blur-[2px] flex items-center justify-center z-50"
+      className="fixed inset-0 bg-ink-deep/60 backdrop-blur-[2px] flex items-center justify-center max-md:items-end z-50"
       onClick={onClose}
     >
       <div
-        className="bg-white w-125 rounded-2xl overflow-hidden"
+        className="bg-white w-125 rounded-2xl overflow-hidden max-md:w-full max-md:rounded-none max-md:rounded-t-2xl max-md:max-h-[90vh] max-md:overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-ink-deep px-[26px] py-5 flex items-center justify-between">
@@ -159,7 +159,7 @@ export function GameFormModal({
             existentes).
           </p>
 
-          <div className="flex gap-3.5 mb-4">
+          <div className="flex gap-3.5 max-md:flex-col mb-4">
             <div className="flex-1">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Adversário
@@ -171,7 +171,7 @@ export function GameFormModal({
                 className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
               />
             </div>
-            <div className="w-45">
+            <div className="w-45 max-md:w-full">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Equipe
               </label>
@@ -189,7 +189,7 @@ export function GameFormModal({
             </div>
           </div>
 
-          <div className="flex gap-3.5 mb-4">
+          <div className="flex gap-3.5 max-md:flex-col mb-4">
             <div className="flex-1">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Data
@@ -201,7 +201,7 @@ export function GameFormModal({
                 className="w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
               />
             </div>
-            <div className="w-32.5">
+            <div className="w-32.5 max-md:w-full">
               <label className="block font-semibold text-[13px] uppercase tracking-[0.04em] text-muted-3 mb-1.5">
                 Horário
               </label>

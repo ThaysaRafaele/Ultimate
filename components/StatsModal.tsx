@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { formatDateBR } from "@/lib/format";
+import { formatDateBR, initials } from "@/lib/format";
 import { computeEff, computePoints, computeReboundsTotal, pct } from "@/lib/stats-calc";
 import type { GameStatRow } from "@/lib/stats-calc";
 import type { GameWithChampionship } from "@/lib/games-repo";
@@ -312,11 +312,11 @@ export function StatsModal({
 
   return (
     <div
-      className="fixed inset-0 bg-ink-deep/60 backdrop-blur-[2px] flex items-center justify-center z-50"
+      className="fixed inset-0 bg-ink-deep/60 backdrop-blur-[2px] flex items-center justify-center max-md:items-end z-50"
       onClick={onClose}
     >
       <div
-        className="bg-white w-[95vw] max-w-375 rounded-2xl overflow-hidden max-h-[85vh] flex flex-col"
+        className="bg-white w-[95vw] max-w-375 rounded-2xl overflow-hidden max-h-[85vh] flex flex-col max-md:w-full max-md:rounded-none max-md:rounded-t-2xl max-md:max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-ink-deep px-[26px] py-5 flex items-center justify-between shrink-0">
@@ -371,7 +371,7 @@ export function StatsModal({
                               min={0}
                               value={boletim[q.our] ?? ""}
                               onChange={(e) => updateQuarter(q.our, e.target.value)}
-                              className="w-14 text-center border border-border-input rounded-md py-1"
+                              className="w-14 max-md:w-10 text-center border border-border-input rounded-md py-1"
                             />
                           </td>
                         ))}
@@ -385,7 +385,7 @@ export function StatsModal({
                               min={0}
                               value={boletim[q.their] ?? ""}
                               onChange={(e) => updateQuarter(q.their, e.target.value)}
-                              className="w-14 text-center border border-border-input rounded-md py-1"
+                              className="w-14 max-md:w-10 text-center border border-border-input rounded-md py-1"
                             />
                           </td>
                         ))}
@@ -434,7 +434,23 @@ export function StatsModal({
                   Nenhum atleta escalado para esse jogo ainda. Defina a escalação primeiro.
                 </p>
               ) : (
-                <div className="overflow-x-auto">
+                <>
+                <div className="hidden max-md:flex max-md:flex-col gap-3">
+                  {rosterAthletes.map((a) => (
+                    <StatsMobileCard
+                      key={a.id}
+                      name={a.nickname || a.name}
+                      stats={values[a.id] ?? EMPTY_STATS}
+                      onChange={(field, raw) => updateValue(a.id, field, raw)}
+                    />
+                  ))}
+                  <StatsMobileCard
+                    name="Adversário"
+                    stats={opponentStats}
+                    onChange={(field, raw) => updateOpponentValue(field, raw)}
+                  />
+                </div>
+                <div className="max-md:hidden overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-xs uppercase tracking-[0.06em] text-muted-2">
@@ -644,6 +660,7 @@ export function StatsModal({
                     </tfoot>
                   </table>
                 </div>
+                </>
               )}
             </>
           )}
@@ -673,5 +690,115 @@ export function StatsModal({
         </div>
       </div>
     </div>
+  );
+}
+
+function StatsMobileCard({
+  name,
+  stats,
+  onChange,
+}: Readonly<{
+  name: string;
+  stats: Omit<GameStatRow, "athleteId">;
+  onChange: (field: StatField, raw: string) => void;
+}>) {
+  const points = computePoints(stats);
+  const reboundsTotal = computeReboundsTotal(stats);
+  const eff = computeEff({ athleteId: 0, ...stats });
+  return (
+    <div className="bg-white border border-border-light rounded-xl p-3.5">
+      <div className="flex items-center gap-2.5 mb-3">
+        <div className="w-8 h-8 rounded-full bg-charcoal flex items-center justify-center text-white font-heading font-bold text-[11px] shrink-0">
+          {initials(name)}
+        </div>
+        <div className="font-bold text-ink text-[14px]">{name}</div>
+      </div>
+
+      <div className="text-[9px] uppercase text-muted-2 font-bold mb-1.5">Arremessos</div>
+      <div className="grid grid-cols-3 gap-2.5 pb-3 mb-3 border-b border-border-light">
+        {SHOT_FIELDS.map((f) => (
+          <div key={f.label}>
+            <div className="text-[9px] uppercase text-muted-2 text-center mb-1">{f.label}</div>
+            <div className="flex gap-1">
+              <StatInput
+                title="Tentativas"
+                value={stats[f.attempted]}
+                onChange={(v) => onChange(f.attempted, v)}
+              />
+              <StatInput
+                title="Convertidas"
+                value={stats[f.made]}
+                onChange={(v) => onChange(f.made, v)}
+              />
+            </div>
+            <div className="text-center text-[10px] text-muted-2 mt-1">
+              {pct(stats[f.made], stats[f.attempted]).toFixed(0)}%
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-[9px] uppercase text-muted-2 font-bold mb-1.5">Rebotes</div>
+      <div className="grid grid-cols-3 gap-2.5 pb-3 mb-3 border-b border-border-light">
+        <StatField label="Reb D" value={stats.reboundsDef} onChange={(v) => onChange("reboundsDef", v)} />
+        <StatField label="Reb O" value={stats.reboundsOff} onChange={(v) => onChange("reboundsOff", v)} />
+        <StatTile label="Reb" value={reboundsTotal} />
+      </div>
+
+      <div className="text-[9px] uppercase text-muted-2 font-bold mb-1.5">Outros</div>
+      <div className="grid grid-cols-3 gap-2.5 mb-4">
+        {OTHER_FIELDS.map((f) => (
+          <StatField key={f.key} label={f.label} value={stats[f.key]} onChange={(v) => onChange(f.key, v)} />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <StatTile label="Total" value={points} highlight />
+        <StatTile label="EFF" value={eff} />
+      </div>
+    </div>
+  );
+}
+
+function StatTile({
+  label,
+  value,
+  highlight,
+}: Readonly<{ label: string; value: number; highlight?: boolean }>) {
+  return (
+    <div className="text-center bg-bg-subtle rounded-md py-2">
+      <div className="text-[9px] uppercase text-muted-2">{label}</div>
+      <div className={`font-bold text-sm ${highlight ? "text-brand-red" : "text-ink"}`}>{value}</div>
+    </div>
+  );
+}
+
+function StatField({
+  label,
+  value,
+  onChange,
+}: Readonly<{ label: string; value: number; onChange: (raw: string) => void }>) {
+  return (
+    <div>
+      <label className="block text-[9px] uppercase text-muted-2 text-center mb-1">{label}</label>
+      <StatInput value={value} onChange={onChange} />
+    </div>
+  );
+}
+
+function StatInput({
+  value,
+  onChange,
+  title,
+}: Readonly<{ value: number; onChange: (raw: string) => void; title?: string }>) {
+  return (
+    <input
+      type="number"
+      min={0}
+      title={title}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full h-9 text-center border border-border-input rounded-md text-sm"
+    />
   );
 }

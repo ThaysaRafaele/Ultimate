@@ -11,28 +11,28 @@ export function GameRow({
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-left bg-white border border-border-light rounded-xl px-5.5 py-4.5 flex items-center gap-5.5 cursor-pointer hover:shadow-[0_8px_20px_rgba(0,0,0,.08)] transition-shadow duration-150"
+      className="w-full text-left bg-white border border-border-light rounded-xl px-5.5 max-md:px-4 py-4.5 max-md:py-3.5 flex items-center gap-5.5 max-md:gap-3.5 max-md:flex-wrap cursor-pointer hover:shadow-[0_8px_20px_rgba(0,0,0,.08)] transition-shadow duration-150"
       style={{ borderLeft: `4px solid ${isDone ? "#101012" : "#E11B22"}` }}
     >
       <div className="text-center min-w-18.5">
-        <div className="font-heading font-bold text-3xl leading-none text-ink">{gameDay(game.gameDate)}</div>
+        <div className="font-heading font-bold text-3xl max-md:text-2xl leading-none text-ink">{gameDay(game.gameDate)}</div>
         <div className="text-xs uppercase tracking-[0.08em] text-muted-2 font-bold">
           {gameMonth(game.gameDate)}
         </div>
       </div>
       <div className="w-px self-stretch bg-border-light" />
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <div className="text-xs uppercase tracking-[0.06em] text-brand-red font-bold">
           {game.championshipName}
         </div>
-        <div className="font-heading font-bold text-2xl uppercase text-ink leading-tight">
+        <div className="font-heading font-bold text-2xl max-md:text-xl uppercase text-ink leading-tight">
           Ultimate <span className="text-muted-2">vs</span> {game.opponent}
         </div>
         <div className="text-[13px] text-muted-1 mt-0.5">
           {formatDateBR(game.gameDate)} · {game.gameTime}
         </div>
       </div>
-      <div className="text-right">
+      <div className="text-right max-md:basis-full max-md:flex max-md:items-center max-md:justify-between max-md:text-left max-md:mt-1">
         <span
           className={`inline-block px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-[0.03em] ${
             isDone ? "bg-green-50 text-green-700" : "bg-red-50 text-brand-red"
@@ -41,7 +41,7 @@ export function GameRow({
           {isDone ? "Realizado" : "Agendado"}
         </span>
         {isDone && (
-          <div className="font-heading font-bold text-xl text-ink mt-2">
+          <div className="font-heading font-bold text-xl text-ink mt-2 max-md:mt-0">
             {game.ourScore} × {game.theirScore}
           </div>
         )}

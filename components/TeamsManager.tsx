@@ -55,7 +55,7 @@ export function TeamsManager({ teams }: Readonly<{ teams: TeamRow[] }>) {
 
   return (
     <div className="max-w-150">
-      <form onSubmit={onAdd} className="flex gap-2.5 mb-2">
+      <form onSubmit={onAdd} className="flex gap-2.5 max-md:flex-col mb-2">
         <input
           value={label}
           onChange={(e) => setLabel(e.target.value)}
@@ -67,7 +67,7 @@ export function TeamsManager({ teams }: Readonly<{ teams: TeamRow[] }>) {
           onChange={(e) => setMaxAge(e.target.value.replace(/\D/g, ""))}
           placeholder="Idade máx."
           inputMode="numeric"
-          className="w-32.5 h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
+          className="w-32.5 max-md:w-full h-12 border-[1.5px] border-border-input rounded-lg px-3.5 text-[15px] text-zinc-800"
         />
         <button
           type="submit"
@@ -156,34 +156,36 @@ function TeamRowItem({
       <div
         className={`rounded-lg px-4 py-3 ${inactive ? "bg-bg-subtle" : "bg-white border border-border-light"}`}
       >
-        <div className="flex gap-2.5">
+        <div className="flex gap-2.5 max-md:flex-col">
           <input
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             className="flex-1 h-10 border-[1.5px] border-border-input rounded-lg px-3 text-sm text-zinc-800"
           />
-          <input
-            value={maxAge}
-            onChange={(e) => setMaxAge(e.target.value.replace(/\D/g, ""))}
-            placeholder="Idade máx."
-            inputMode="numeric"
-            className="w-28 h-10 border-[1.5px] border-border-input rounded-lg px-3 text-sm text-zinc-800"
-          />
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={saving}
-            className="h-10 px-3.5 bg-brand-red text-white border-none rounded-lg font-bold text-xs uppercase cursor-pointer disabled:opacity-60"
-          >
-            {saving ? "Salvando…" : "Salvar"}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="h-10 px-3.5 bg-white border-[1.5px] border-border-input rounded-lg font-bold text-xs uppercase cursor-pointer text-ink"
-          >
-            Cancelar
-          </button>
+          <div className="flex gap-2.5">
+            <input
+              value={maxAge}
+              onChange={(e) => setMaxAge(e.target.value.replace(/\D/g, ""))}
+              placeholder="Idade máx."
+              inputMode="numeric"
+              className="w-28 h-10 border-[1.5px] border-border-input rounded-lg px-3 text-sm text-zinc-800"
+            />
+            <button
+              type="button"
+              onClick={onSave}
+              disabled={saving}
+              className="h-10 px-3.5 max-md:flex-1 bg-brand-red text-white border-none rounded-lg font-bold text-xs uppercase cursor-pointer disabled:opacity-60"
+            >
+              {saving ? "Salvando…" : "Salvar"}
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="h-10 px-3.5 max-md:flex-1 bg-white border-[1.5px] border-border-input rounded-lg font-bold text-xs uppercase cursor-pointer text-ink"
+            >
+              Cancelar
+            </button>
+          </div>
         </div>
         {error && <p className="text-brand-red text-xs mt-2">{error}</p>}
       </div>
