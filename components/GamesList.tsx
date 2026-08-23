@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { GameRow } from "@/components/GameRow";
+import { GamesByYear } from "@/components/GamesByYear";
 import { GameFormModal } from "@/components/GameFormModal";
 import { GameFilters } from "@/components/GameFilters";
 import { getGameYears, matchesGameFilters } from "@/lib/game-filters";
@@ -47,11 +47,7 @@ export function GamesList({
           Nenhum jogo encontrado com esse filtro.
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {filtered.map((game) => (
-            <GameRow key={game.id} game={game} onClick={() => setEditing(game)} />
-          ))}
-        </div>
+        <GamesByYear games={filtered} onGameClick={setEditing} />
       )}
       {editing && (
         <GameFormModal

@@ -1,5 +1,7 @@
 "use client";
 
+import { SearchInput } from "@/components/SearchInput";
+
 export function GameFilters({
   years,
   year,
@@ -26,12 +28,12 @@ export function GameFilters({
         <div className="font-heading font-bold text-[34px] text-ink">{resultCount}</div>
       </div>
       <div className="bg-white border border-border-light rounded-[10px] px-5.5 py-4 flex items-center gap-2.5">
-        <input
-          type="text"
+        <SearchInput
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={onSearchChange}
           placeholder="Buscar adversário ou campeonato (mín. 3 letras)…"
-          className="h-10 w-64 max-md:w-full border-[1.5px] border-border-input rounded-lg px-3 text-[15px] text-zinc-800"
+          wrapperClassName="h-10 w-64 max-md:w-full"
+          className="border-[1.5px] border-border-input rounded-lg px-3 text-[15px] text-zinc-800"
         />
       </div>
       <div className="bg-white border border-border-light rounded-[10px] px-5.5 py-4 flex items-center gap-2.5">

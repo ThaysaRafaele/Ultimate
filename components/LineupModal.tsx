@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatDateBR } from "@/lib/format";
+import { SearchInput } from "@/components/SearchInput";
 import type { GameWithChampionship } from "@/lib/games-repo";
 import type { athletes } from "@/lib/schema";
 
@@ -101,12 +102,12 @@ export function LineupModal({
 
         <div className="p-[26px] overflow-y-auto flex-1">
           {!loading && teamAthletes.length > 0 && (
-            <input
-              type="text"
+            <SearchInput
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={setSearch}
               placeholder="Buscar atleta (mín. 3 letras)…"
-              className="w-full h-10 border-[1.5px] border-border-input rounded-lg px-3.5 text-sm text-zinc-800 mb-3.5"
+              wrapperClassName="w-full h-10 mb-3.5"
+              className="border-[1.5px] border-border-input rounded-lg px-3.5 text-sm text-zinc-800"
             />
           )}
           {loading ? (
