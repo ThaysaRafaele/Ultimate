@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AthleteCard } from "@/components/AthleteCard";
+import { SearchInput } from "@/components/SearchInput";
 import { AGE_FILTER_OPTIONS, matchesAgeFilter } from "@/lib/age-filter";
 import type { AgeFilterValue } from "@/lib/age-filter";
 import { ageInYears, todayISO } from "@/lib/validation";
@@ -49,12 +50,12 @@ export function AthletesRoster({
           <div className="font-heading font-bold text-[34px] text-ink">{filtered.length}</div>
         </div>
         <div className="bg-white border border-border-light rounded-[10px] px-5.5 py-4 flex items-center gap-2.5">
-          <input
-            type="text"
+          <SearchInput
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={setSearch}
             placeholder="Buscar atleta (mín. 3 letras)…"
-            className="h-10 w-56 max-md:w-full border-[1.5px] border-border-input rounded-lg px-3 text-[15px] text-zinc-800"
+            wrapperClassName="h-10 w-56 max-md:w-full"
+            className="border-[1.5px] border-border-input rounded-lg px-3 text-[15px] text-zinc-800"
           />
         </div>
         <div className="bg-white border border-border-light rounded-[10px] px-5.5 py-4 flex items-center gap-2.5">

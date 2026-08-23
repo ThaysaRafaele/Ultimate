@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { GameRow } from "@/components/GameRow";
+import { GamesByYear } from "@/components/GamesByYear";
 import { StatsModal } from "@/components/StatsModal";
 import { GameFilters } from "@/components/GameFilters";
 import { getGameYears, matchesGameFilters } from "@/lib/game-filters";
@@ -39,11 +39,7 @@ export function EstatisticasList({
           Nenhum jogo encontrado com esse filtro.
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {filtered.map((game) => (
-            <GameRow key={game.id} game={game} onClick={() => setSelectedGame(game)} />
-          ))}
-        </div>
+        <GamesByYear games={filtered} onGameClick={setSelectedGame} />
       )}
       {selectedGame && (
         <StatsModal

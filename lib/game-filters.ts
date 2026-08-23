@@ -5,6 +5,21 @@ export function getGameYears(games: GameWithChampionship[]): number[] {
   return [...years].sort((a, b) => b - a);
 }
 
+export function groupGamesByYear(
+  games: GameWithChampionship[]
+): { year: number; games: GameWithChampionship[] }[] {
+  const byYear = new Map<number, GameWithChampionship[]>();
+  for (const game of games) {
+    const year = Number(game.gameDate.slice(0, 4));
+    const bucket = byYear.get(year);
+    if (bucket) bucket.push(game);
+    else byYear.set(year, [game]);
+  }
+  return [...byYear.entries()]
+    .sort(([a], [b]) => b - a)
+    .map(([year, yearGames]) => ({ year, games: yearGames }));
+}
+
 // Busca só entra em ação a partir de 3 caracteres, igual ao filtro de
 // atletas — evita filtrar tudo fora a cada tecla enquanto o técnico digita.
 export function matchesGameFilters(
