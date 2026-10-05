@@ -34,6 +34,15 @@ Começa por 2018, que já está completo no sistema.
 
 ## Issue 1: Tracer-bullet, tela Visão geral com o resumo anual da categoria
 
+> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.**
+> Conferido no `npm run dev`: Adulto 2018 = 15 jogos, 8V 7D 0E, 938 × 859 pontos (igual à
+> linha T de 2018 da "Scoutt Geral"); 2019 = 36 jogos, 29V 7D. Divergências do texto da issue:
+> `getOverviewYears` virou `getRealizedGameDates` + `availableYears` (o ocultamento de 2026 fica
+> num lugar só); Vitest 4 em vez de 5 (o 5 exige `@types/node` ≥ 22); estado vazio extra para
+> "só há jogos de 2026" e "jogos realizados sem placar".
+> Sugestões da revisão não aplicadas (baixa prioridade): testar o arredondamento exibido
+> (ex.: 8/15 = 53%); rótulo "Jogos" conta só jogos com placar (a dica mostra os sem placar).
+
 **Contexto/Decisões:** `CONTEXT.md` › Resumo anual, Categoria, Placar, Jogo · ADR-0004 (só
 jogo realizado tem resultado) · ADR-0011 (regras de contagem, 2026 fora).
 **Protótipo:** `_prototype_extracted.html` › tela "Visão geral" (cards "Jogos na temporada",
