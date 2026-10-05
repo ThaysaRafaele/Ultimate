@@ -1,0 +1,10 @@
+%% Ciclo de vida da Categoria (teams.active). Ver ADR-0002, ADR-0003, ADR-0009; pendência P-05.
+stateDiagram-v2
+    [*] --> ativa: Técnico cadastra categoria (nome, idade máxima opcional)
+    ativa --> ativa: Técnico renomeia ou altera idade máxima (⚠ não revalida atletas; P-05)
+    ativa --> inativa: Técnico inativa
+    inativa --> ativa: Técnico reativa
+    note right of inativa
+        Some do seletor de categoria e do cadastro de jogos.
+        Jogos e vínculos de atletas permanecem. Nunca é excluída.
+    end note

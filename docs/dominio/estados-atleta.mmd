@@ -1,0 +1,11 @@
+%% Ciclo de vida do Atleta (athletes.active). Ver ADR-0003, ADR-0009; pendências P-04, P-05, P-06.
+stateDiagram-v2
+    [*] --> ativo: Técnico cadastra atleta (idade mínima 10; limite de idade das categorias escolhidas)
+    ativo --> ativo: Técnico edita dados/categorias (revalida limite de idade com a data de hoje)
+    ativo --> inativo: Técnico inativa
+    inativo --> ativo: Técnico reativa
+    note right of inativo
+        Não aparece para escalação nem boletim,
+        inclusive de jogos antigos (P-06).
+        Nunca é excluído.
+    end note

@@ -1,0 +1,10 @@
+%% Ciclo de vida do Jogo (games.status). Ver ADR-0004; pendências P-07, P-08 no CONTEXT.md.
+stateDiagram-v2
+    [*] --> agendado: Técnico cadastra jogo (categoria, campeonato, adversário, data, horário)
+    [*] --> realizado: Técnico cadastra jogo já com placar final / script de importação
+    agendado --> agendado: Técnico edita dados ou define escalação
+    agendado --> realizado: Técnico informa placar final (nosso e do adversário)
+    realizado --> realizado: Técnico lança/edita boletim e estatísticas (gera avisos de recorde)
+    realizado --> agendado: ⚠ Técnico volta o status (hoje permitido mesmo com estatísticas; P-07)
+    agendado --> [*]: Técnico exclui (apaga escalação)
+    realizado --> [*]: Técnico exclui (apaga escalação, estatísticas e avisos)

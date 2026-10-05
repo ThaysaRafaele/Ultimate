@@ -1,0 +1,7 @@
+%% Ciclo de vida do Aviso de recorde pessoal (notifications.read). Ver ADR-0010.
+stateDiagram-v2
+    [*] --> nao_lido: Sistema detecta recorde ao salvar estatísticas do jogo
+    nao_lido --> lido: Técnico abre o aviso ou marca todos como lidos
+    nao_lido --> [*]: Sistema apaga ao reeditar estatísticas do jogo (recria se ainda for recorde)
+    lido --> [*]: Sistema apaga ao reeditar estatísticas do jogo ou ao excluir o jogo
+    nao_lido --> [*]: Técnico exclui o jogo
