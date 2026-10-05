@@ -8,7 +8,7 @@ escalação, boletim de estatísticas e recordes pessoais. Vocabulário do domí
 
 - Next.js 16 (App Router) + React 19 + TypeScript 5 (strict). App única: telas e API no mesmo projeto.
 - Drizzle ORM + Neon Postgres (driver `neon-http`). Fotos no Vercel Blob.
-- Tailwind CSS 4. ESLint 9 (`eslint-config-next`). Testes: Vitest (a configurar; ver abaixo).
+- Tailwind CSS 4. ESLint 9 (`eslint-config-next`). Testes: Vitest 4.
 
 ## Como rodar
 
@@ -20,7 +20,7 @@ Local, sem Docker. Precisa de `.env.local` com `DATABASE_URL` e `BLOB_READ_WRITE
 | `npm run dev` | servidor de desenvolvimento |
 | `npm run lint` | ESLint |
 | `npx tsc --noEmit` | checagem de tipos |
-| `npm test` | Vitest (ainda não configurado; o setup está em `.claude/skills/decompor-epico/references/vitest-setup.md`) |
+| `npm test` | Vitest (testes de lógica pura em `lib/*.test.ts`; regras em `.claude/skills/decompor-epico/references/vitest-setup.md`) |
 | `npm run build` | build de produção |
 | `npm run db:generate` | gera migration em `drizzle/` a partir de `lib/schema.ts` |
 | `npm run db:migrate` | aplica migrations no banco. **Só com pedido explícito.** |

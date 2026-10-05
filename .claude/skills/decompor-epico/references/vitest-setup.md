@@ -1,24 +1,18 @@
-# Setup do Vitest (task 0, uma vez no projeto)
+# Vitest no projeto
 
-Feito pela primeira issue que precisar de teste. Depois disso, a task 0 vira "não se aplica".
+**Status: configurado** (Issue 1 da Visão geral, 2026-10-05). A task 0 das próximas issues é
+"não se aplica".
 
-1. `npm install -D vitest`
-2. `package.json` → scripts: `"test": "vitest run"` e `"test:watch": "vitest"`.
-3. `vitest.config.ts` na raiz:
+Como ficou:
+- `vitest@^4` (o Vitest 5 exige `@types/node` ≥ 22; o projeto usa `^20`). Ao subir o
+  `@types/node`, dá para atualizar o Vitest.
+- Scripts: `"test": "vitest run"` e `"test:watch": "vitest"`.
+- `vitest.config.mts` na raiz (extensão `.mts` porque o `package.json` não é `"type": "module"`;
+  alias `@` via `fileURLToPath(new URL(".", import.meta.url))`).
 
-   ```ts
-   import { defineConfig } from "vitest/config";
-   import path from "path";
-
-   export default defineConfig({
-     resolve: { alias: { "@": path.resolve(__dirname, ".") } },
-     test: { environment: "node", include: ["lib/**/*.test.ts"] },
-   });
-   ```
-
-4. Testes ficam ao lado do código: `lib/<x>.test.ts`.
-5. **Escopo:** só lógica pura (`lib/*-validation.ts`, `lib/*-calc.ts`, `lib/format.ts`,
+Regras para testes:
+1. Ficam ao lado do código: `lib/<x>.test.ts`.
+2. **Escopo:** só lógica pura (`lib/*-validation.ts`, `lib/*-calc.ts`, `lib/format.ts`,
    `lib/game-filters.ts`...). Nada que importe `@/lib/db` (o driver Neon tenta conectar).
-   Datas: funções que usam "hoje" (`todayISO`, `ageLimitError`) devem ser testadas com
+3. Datas: funções que usam "hoje" (`todayISO`, `ageLimitError`) são testadas com
    `vi.useFakeTimers()` + `vi.setSystemTime(...)`.
-6. Atualizar `CLAUDE.md` (comando `npm test` deixa de ser "a configurar").
