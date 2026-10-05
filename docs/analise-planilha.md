@@ -190,3 +190,16 @@ Mesmo padrão dos scripts atuais: `node scripts/seed-planilha.mjs` (dry-run) e `
 6. **Placar por quarto**: entra (é placar, não estatística do adversário) ou só o final?
 7. **Colocação** e as métricas D.D, T.D, P+20, R+10, A+10, Eff+20 devem aparecer no relatório?
 8. **2026**: o resumo está atrasado em relação aos boletins; a fonte de 2026 são os boletins?
+
+### Respostas (2026-10-05), registradas na ADR-0011
+
+| # | Resposta |
+|---|---|
+| 1 | Em aberto: P-22 (proposta de mapeamento elenco → categoria no `CONTEXT.md`). |
+| 2 | Vale a **soma do boletim**. Corrigir os 3 jogos de 2018 gravados com o placar final. |
+| 3 | **Data fictícia**, como nos jogos de 2019. |
+| 4 | Jogo interno: vitória/derrota para cada categoria, **uma vitória** no total do clube; empate idem. Modelagem em P-23. |
+| 5 | Feminino **fora** por enquanto (nenhuma atleta cadastrada). |
+| 6 | Entram **placar por quarto e placar final**. |
+| 7 | Métricas extras **fora** por enquanto; confirmar com o técnico (P-21). |
+| 8 | 2026 **fora** da Visão geral por enquanto (técnico ainda não lançou dados). |
