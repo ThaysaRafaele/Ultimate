@@ -137,6 +137,16 @@ anexada ao relatório da issue; nada aplicado no banco pelo agente.
 
 ## Issue 3: Histórico anual de jogos da categoria
 
+> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.**
+> Conferido no `npm run dev`: Adulto 2018 = 4 campeonatos, 15 jogos; total e quartos de cada
+> campeonato idênticos às linhas T da "Scoutt Geral" (Copa Ucdb 332 × 302, NBMS 292 × 257,
+> Jogos Abertos 257 × 239, Amistoso 57 × 61). Grade completa (com quartos) a partir de `lg`;
+> abaixo disso, data, adversário, placar e selo.
+> Observação: a Copa Ucdb aparece antes dos Jogos Abertos porque dois jogos dela têm a data
+> fictícia 01/01/2018 (P-18). Fica para avaliar junto da marcação de data estimada.
+> Sugestões da revisão não aplicadas (baixa prioridade): agrupar por id do campeonato em vez
+> do nome; `router.refresh()` só quando o boletim for salvo.
+
 **Contexto/Decisões:** `CONTEXT.md` › Jogo, Campeonato, Placar · ADR-0011 (placar por quarto
 e final; adversário só placar) · ADR-0008 (datas fictícias mantidas).
 **Protótipo:** `_prototype_extracted.html` › "Histórico de jogos" (inspiração).

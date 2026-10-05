@@ -1,27 +1,13 @@
-import { and, asc, eq, gte, lte } from "drizzle-orm";
+import { and, arrayContains, asc, eq, getTableColumns, gte, lte } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { championships, games } from "@/lib/schema";
+import { athletes, championships, games } from "@/lib/schema";
+import type { GameWithChampionship } from "@/lib/games-repo";
 
-export type OverviewGame = {
-  id: number;
-  gameDate: string;
-  opponent: string;
-  championshipName: string | null;
-  ourScore: number | null;
-  theirScore: number | null;
-};
-
-// Only realized games count for the overview (ADR-0004, ADR-0011).
-export async function getRealizedGames(teamId: string, year: number): Promise<OverviewGame[]> {
+// Only realized games count for the overview (ADR-0004, ADR-0011). Returns the
+// full game row (quarters included) so the list can open the existing boletim.
+export async function getRealizedGames(teamId: string, year: number): Promise<GameWithChampionship[]> {
   return db
-    .select({
-      id: games.id,
-      gameDate: games.gameDate,
-      opponent: games.opponent,
-      championshipName: championships.name,
-      ourScore: games.ourScore,
-      theirScore: games.theirScore,
-    })
+    .select({ ...getTableColumns(games), championshipName: championships.name })
     .from(games)
     .leftJoin(championships, eq(games.championshipId, championships.id))
     .where(
@@ -43,4 +29,13 @@ export async function getRealizedGameDates(teamId: string): Promise<string[]> {
     .from(games)
     .where(and(eq(games.team, teamId), eq(games.status, "realizado")));
   return rows.map((r) => r.gameDate);
+}
+
+// Same roster the "Estatísticas" screen hands to StatsModal.
+export async function getActiveTeamAthletes(teamId: string) {
+  return db
+    .select()
+    .from(athletes)
+    .where(and(arrayContains(athletes.teams, [teamId]), eq(athletes.active, true)))
+    .orderBy(asc(athletes.name));
 }

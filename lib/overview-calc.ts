@@ -72,6 +72,77 @@ export function summarizeGames(games: readonly ScoredGame[]): GamesSummary {
   };
 }
 
+export const QUARTERS = ["q1", "q2", "q3", "q4", "ot"] as const;
+export type Quarter = (typeof QUARTERS)[number];
+
+export type QuarterGame = ScoredGame & {
+  championshipName: string | null;
+  q1OurScore: number | null;
+  q1TheirScore: number | null;
+  q2OurScore: number | null;
+  q2TheirScore: number | null;
+  q3OurScore: number | null;
+  q3TheirScore: number | null;
+  q4OurScore: number | null;
+  q4TheirScore: number | null;
+  otOurScore: number | null;
+  otTheirScore: number | null;
+};
+
+export type QuarterLine = { our: number; their: number; games: number };
+
+export type ChampionshipGroup<G extends QuarterGame> = {
+  name: string;
+  games: G[];
+  summary: GamesSummary;
+  // Totals per quarter only over games where that quarter was filled in, so a
+  // game without the quarter breakdown doesn't drag the averages down.
+  quarterTotals: Record<Quarter, QuarterLine>;
+  hasOvertime: boolean;
+};
+
+export const NO_CHAMPIONSHIP = "Sem campeonato";
+
+export function quarterScore(g: QuarterGame, q: Quarter): { our: number; their: number } | null {
+  const our = g[`${q}OurScore`];
+  const their = g[`${q}TheirScore`];
+  return our != null && their != null ? { our, their } : null;
+}
+
+// Same grouping as the coach's "Scoutt Geral": one block per championship,
+// blocks ordered by their first game, games by date inside each block.
+export function groupByChampionship<G extends QuarterGame>(games: readonly G[]): ChampionshipGroup<G>[] {
+  const byName = new Map<string, G[]>();
+  for (const g of [...games].sort((a, b) => a.gameDate.localeCompare(b.gameDate))) {
+    const name = g.championshipName?.trim() || NO_CHAMPIONSHIP;
+    const list = byName.get(name);
+    if (list) list.push(g);
+    else byName.set(name, [g]);
+  }
+
+  return [...byName.entries()].map(([name, list]) => {
+    const quarterTotals = Object.fromEntries(
+      QUARTERS.map((q) => [q, { our: 0, their: 0, games: 0 }])
+    ) as Record<Quarter, QuarterLine>;
+    for (const g of list) {
+      for (const q of QUARTERS) {
+        const score = quarterScore(g, q);
+        if (!score) continue;
+        quarterTotals[q].our += score.our;
+        quarterTotals[q].their += score.their;
+        quarterTotals[q].games += 1;
+      }
+    }
+    return {
+      name,
+      games: list,
+      summary: summarizeGames(list),
+      quarterTotals,
+      hasOvertime: quarterTotals.ot.games > 0,
+    };
+  });
+}
+
 // Calendar years with at least one realized game, newest first, minus the
 // hidden ones.
 export function availableYears(gameDates: readonly string[]): number[] {
