@@ -1,6 +1,9 @@
 // Pure math for the "Visão geral" (annual summary) screen. No `@/lib/db`
 // import here on purpose, same as stats-calc.ts. Counting rules: ADR-0011.
 
+import { computeEff, computePoints, computeReboundsTotal } from "@/lib/stats-calc";
+import type { GameStatRow } from "@/lib/stats-calc";
+
 export type GameResult = "vitoria" | "derrota" | "empate";
 
 export type ScoredGame = {
@@ -141,6 +144,84 @@ export function groupByChampionship<G extends QuarterGame>(games: readonly G[]):
       hasOvertime: quarterTotals.ot.games > 0,
     };
   });
+}
+
+// Per-athlete season totals, already summed by the database (one row per
+// athlete). Rebounds stay as a single total: imported seasons have no off/def
+// split (ADR-0008).
+export type PlayerTotalsRow = Omit<GameStatRow, "athleteId"> & {
+  athleteId: number;
+  name: string;
+  nickname: string | null;
+  active: boolean;
+  games: number;
+};
+
+export type ShotLine = { made: number; attempted: number; pct: number | null };
+
+export type PlayerSummary = {
+  athleteId: number;
+  name: string;
+  nickname: string | null;
+  active: boolean;
+  games: number;
+  totals: { points: number; rebounds: number; assists: number; steals: number; blocks: number; turnovers: number; fouls: number; eff: number };
+  averages: PlayerSummary["totals"];
+  fg2: ShotLine;
+  fg3: ShotLine;
+  ft: ShotLine;
+};
+
+const shot = (made: number, attempted: number): ShotLine => ({
+  made,
+  attempted,
+  pct: attempted > 0 ? made / attempted : null,
+});
+
+// EFF is linear in every counting stat, so EFF of the season totals equals the
+// sum of each game's EFF (fouls included, ADR-0006).
+export function summarizePlayers(rows: readonly PlayerTotalsRow[]): PlayerSummary[] {
+  return rows.map((r) => {
+    const totals = {
+      points: computePoints(r),
+      rebounds: computeReboundsTotal(r),
+      assists: r.assists,
+      steals: r.steals,
+      blocks: r.blocks,
+      turnovers: r.turnovers,
+      fouls: r.fouls,
+      eff: computeEff(r),
+    };
+    const per = (n: number) => (r.games > 0 ? n / r.games : 0);
+    return {
+      athleteId: r.athleteId,
+      name: r.name,
+      nickname: r.nickname,
+      active: r.active,
+      games: r.games,
+      totals,
+      averages: {
+        points: per(totals.points),
+        rebounds: per(totals.rebounds),
+        assists: per(totals.assists),
+        steals: per(totals.steals),
+        blocks: per(totals.blocks),
+        turnovers: per(totals.turnovers),
+        fouls: per(totals.fouls),
+        eff: per(totals.eff),
+      },
+      fg2: shot(r.fg2Made, r.fg2Attempted),
+      fg3: shot(r.fg3Made, r.fg3Attempted),
+      ft: shot(r.ftMade, r.ftAttempted),
+    };
+  });
+}
+
+// Points of the official score not credited to any registered athlete (names
+// left out of the imports, ADR-0008). Positive = points missing from the
+// players table; negative means the boletim adds up to more than the score.
+export function othersPoints(teamPoints: number, players: readonly PlayerSummary[]): number {
+  return teamPoints - players.reduce((sum, p) => sum + p.totals.points, 0);
 }
 
 // Calendar years with at least one realized game, newest first, minus the

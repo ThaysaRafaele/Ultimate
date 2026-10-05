@@ -2,12 +2,18 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { NavBar } from "@/components/NavBar";
 import { OverviewGames } from "@/components/OverviewGames";
+import { OverviewPlayers } from "@/components/OverviewPlayers";
 import { OverviewSummary } from "@/components/OverviewSummary";
 import { YearFilter } from "@/components/YearFilter";
 import { findTeamLabel } from "@/lib/teams";
 import { getAllTeams } from "@/lib/teams-repo";
-import { availableYears, summarizeGames } from "@/lib/overview-calc";
-import { getActiveTeamAthletes, getRealizedGameDates, getRealizedGames } from "@/lib/overview-repo";
+import { availableYears, othersPoints, summarizeGames, summarizePlayers } from "@/lib/overview-calc";
+import {
+  getActiveTeamAthletes,
+  getPlayerStatsForYear,
+  getRealizedGameDates,
+  getRealizedGames,
+} from "@/lib/overview-repo";
 
 export default async function VisaoGeralPage({
   searchParams,
@@ -40,11 +46,13 @@ export default async function VisaoGeralPage({
   const years = availableYears(gameDates);
   const onlyHiddenYears = years.length === 0 && gameDates.length > 0;
   const selectedYear = years.includes(Number(year)) ? Number(year) : (years[0] ?? null);
-  const [games, teamAthletes] = await Promise.all([
+  const [games, teamAthletes, playerRows] = await Promise.all([
     selectedYear ? getRealizedGames(teamId, selectedYear) : Promise.resolve([]),
     getActiveTeamAthletes(teamId),
+    selectedYear ? getPlayerStatsForYear(teamId, selectedYear) : Promise.resolve([]),
   ]);
   const summary = summarizeGames(games);
+  const players = summarizePlayers(playerRows);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -70,6 +78,14 @@ export default async function VisaoGeralPage({
             <>
               <OverviewSummary summary={summary} />
               <OverviewGames games={games} teamAthletes={teamAthletes} />
+              <OverviewPlayers
+                players={players}
+                year={selectedYear}
+                // With realized games missing the final score, the official total is
+                // incomplete and the difference would be misleading: hide the row.
+                othersPoints={summary.withoutScore > 0 ? 0 : othersPoints(summary.pointsFor, players)}
+                teamGames={summary.played}
+              />
             </>
           ) : selectedYear ? (
             <div className="border border-dashed border-border-dash rounded-xl py-16 px-6 text-center">

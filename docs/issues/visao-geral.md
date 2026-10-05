@@ -187,6 +187,15 @@ passam; fluxo conferido no `npm run dev` (desktop e celular); UI revisada.
 
 ## Issue 4: Resumo anual por jogador
 
+> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.**
+> Conferido no `npm run dev` (Adulto 2018): Juliano 168 pts / 11 J, Ibra 155 / 15, Vini 153 / 13,
+> Guto 134 / 9; Renan (inativo) aparece; "Outros (sem cadastro)" = 49. Divergências explicadas:
+> Dalton, Renan e Davi (dados já conhecidos); Rafa 68 (Rafa + Rafa Pivo somados por decisão);
+> EFF menor que a da planilha porque o sistema desconta faltas (ADR-0006; recado ao técnico).
+> Divergências do texto: `othersRow` virou `othersPoints`; a linha "Outros" some quando há
+> jogo realizado sem placar no ano (total oficial incompleto). Não feito: cabeçalho da tabela
+> fixo ao rolar a página (exigiria limitar a altura da tabela).
+
 **Contexto/Decisões:** `CONTEXT.md` › Atleta, Estatísticas do atleta, EFF · ADR-0006 (EFF) ·
 ADR-0009 (inativo continua no histórico) · ADR-0011 (jogador entra pelo que jogou no ano;
 placar oficial).

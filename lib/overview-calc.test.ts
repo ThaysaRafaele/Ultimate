@@ -4,9 +4,11 @@ import {
   availableYears,
   gameResult,
   groupByChampionship,
+  othersPoints,
   summarizeGames,
+  summarizePlayers,
 } from "@/lib/overview-calc";
-import type { QuarterGame } from "@/lib/overview-calc";
+import type { PlayerTotalsRow, QuarterGame } from "@/lib/overview-calc";
 
 const game = (ourScore: number | null, theirScore: number | null, gameDate = "2018-05-19") => ({
   gameDate,
@@ -108,5 +110,63 @@ describe("groupByChampionship", () => {
     const groups = groupByChampionship([qGame(null, "2018-08-21", 57, 61), qGame("  ", "2018-08-22", 60, 50)]);
     expect(groups).toHaveLength(1);
     expect(groups[0].name).toBe(NO_CHAMPIONSHIP);
+  });
+});
+
+const player = (over: Partial<PlayerTotalsRow> = {}): PlayerTotalsRow => ({
+  athleteId: 1,
+  name: "IBRA",
+  nickname: null,
+  active: true,
+  games: 2,
+  reboundsOff: 0,
+  reboundsDef: 8,
+  assists: 6,
+  steals: 1,
+  blocks: 1,
+  turnovers: 13,
+  fouls: 2,
+  fg2Made: 8,
+  fg2Attempted: 16,
+  fg3Made: 1,
+  fg3Attempted: 4,
+  ftMade: 0,
+  ftAttempted: 0,
+  ...over,
+});
+
+describe("summarizePlayers", () => {
+  it("calcula totais, médias por jogo disputado e percentuais", () => {
+    const [p] = summarizePlayers([player()]);
+    expect(p.totals.points).toBe(19); // 8*2 + 1*3
+    expect(p.totals.rebounds).toBe(8);
+    expect(p.averages.points).toBeCloseTo(9.5);
+    expect(p.averages.rebounds).toBeCloseTo(4);
+    expect(p.fg2).toEqual({ made: 8, attempted: 16, pct: 0.5 });
+    expect(p.fg3.pct).toBeCloseTo(0.25);
+  });
+
+  it("deixa o percentual nulo quando não houve tentativa", () => {
+    const [p] = summarizePlayers([player()]);
+    expect(p.ft).toEqual({ made: 0, attempted: 0, pct: null });
+  });
+
+  it("calcula a EFF descontando as faltas (ADR-0006)", () => {
+    // bom: 19 pts + 8 reb + 6 ast + 1 rou + 1 toc = 35
+    // ruim: (16-8) + (4-1) + 0 + 13 erros + 2 faltas = 26
+    const [p] = summarizePlayers([player()]);
+    expect(p.totals.eff).toBe(9);
+    expect(p.averages.eff).toBeCloseTo(4.5);
+  });
+});
+
+describe("othersPoints", () => {
+  it("devolve os pontos do placar não atribuídos a atletas cadastrados", () => {
+    const players = summarizePlayers([player(), player({ athleteId: 2, fg2Made: 10 })]);
+    expect(othersPoints(70, players)).toBe(70 - 19 - 23);
+  });
+
+  it("fica negativo quando o boletim soma mais que o placar", () => {
+    expect(othersPoints(10, summarizePlayers([player()]))).toBe(-9);
   });
 });
