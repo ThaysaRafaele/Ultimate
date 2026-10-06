@@ -24,6 +24,15 @@ Começa por 2018, que já está completo no sistema.
   `their_score`) depois da Issue 2. ADR-0011.
 - EFF: `computeEff` (ADR-0006).
 
+## Ajustes de UX depois das issues (2026-10-05, pedido da usuária)
+- Abas abaixo dos cards do resumo: Jogos / Jogadores (no resumo geral, Ano a ano / Jogadores),
+  com a aba na URL (`?aba=`).
+- Campeonatos recolhidos por padrão, com "Expandir todos"; jogos e jogadores com seta "›" para
+  indicar que são clicáveis.
+- Busca textual (sem acento) nas abas Jogos e Jogadores.
+- Perfil aberto pela Visão geral mostra "Voltar para a visão geral" (`?voltar=`, só caminho
+  interno) e mantém o menu destacado.
+
 ## Fora do épico
 - Importar a planilha de 2020 a 2025: aguarda o mapeamento elenco → categoria (P-22).
 - Jogos internos (P-23): não existem no banco hoje.
@@ -34,7 +43,7 @@ Começa por 2018, que já está completo no sistema.
 
 ## Issue 1: Tracer-bullet, tela Visão geral com o resumo anual da categoria
 
-> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.**
+> **Status: concluída em 2026-10-05.**
 > Conferido no `npm run dev`: Adulto 2018 = 15 jogos, 8V 7D 0E, 938 × 859 pontos (igual à
 > linha T de 2018 da "Scoutt Geral"); 2019 = 36 jogos, 29V 7D. Divergências do texto da issue:
 > `getOverviewYears` virou `getRealizedGameDates` + `availableYears` (o ocultamento de 2026 fica
@@ -141,7 +150,7 @@ anexada ao relatório da issue; nada aplicado no banco pelo agente.
 
 ## Issue 3: Histórico anual de jogos da categoria
 
-> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.**
+> **Status: concluída em 2026-10-05.**
 > Conferido no `npm run dev`: Adulto 2018 = 4 campeonatos, 15 jogos; total e quartos de cada
 > campeonato idênticos às linhas T da "Scoutt Geral" (Copa Ucdb 332 × 302, NBMS 292 × 257,
 > Jogos Abertos 257 × 239, Amistoso 57 × 61). Grade completa (com quartos) a partir de `lg`;
@@ -191,7 +200,7 @@ passam; fluxo conferido no `npm run dev` (desktop e celular); UI revisada.
 
 ## Issue 4: Resumo anual por jogador
 
-> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.**
+> **Status: concluída em 2026-10-05.**
 > Conferido no `npm run dev` (Adulto 2018): Juliano 168 pts / 11 J, Ibra 155 / 15, Vini 153 / 13,
 > Guto 134 / 9; Renan (inativo) aparece; "Outros (sem cadastro)" = 49. Divergências explicadas:
 > Dalton, Renan e Davi (dados já conhecidos); Rafa 68 (Rafa + Rafa Pivo somados por decisão);
@@ -243,7 +252,7 @@ passam; fluxo conferido no `npm run dev` (desktop e celular); UI revisada.
 
 ## Issue 5: Resumo geral com todos os anos
 
-> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.** Conferido no
+> **Status: concluída em 2026-10-05.** Conferido no
 > banco real: Adulto e Todas as categorias = 2018 (15) + 2019 (36) = 51 jogos.
 
 **Contexto/Decisões:** `CONTEXT.md` › Resumo geral · ADR-0011 (2026 oculto; jogos internos
@@ -282,7 +291,7 @@ passam; fluxo conferido no `npm run dev` (desktop e celular); UI revisada.
 
 ## Issue 6: Exportar relatório para Excel
 
-> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.** Colunas da aba
+> **Status: concluída em 2026-10-05.** Colunas da aba
 > Jogadores na ordem da "Scout Atletas", sem as métricas extras (P-21). Conferido no banco real:
 > Adulto 2018 = 15 jogos, 8V 7D, 944 × 857; Ibra 155 pts, Juliano 168.
 
