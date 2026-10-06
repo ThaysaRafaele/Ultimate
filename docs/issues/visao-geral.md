@@ -243,6 +243,9 @@ passam; fluxo conferido no `npm run dev` (desktop e celular); UI revisada.
 
 ## Issue 5: Resumo geral com todos os anos
 
+> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.** Conferido no
+> banco real: Adulto e Todas as categorias = 2018 (15) + 2019 (36) = 51 jogos.
+
 **Contexto/Decisões:** `CONTEXT.md` › Resumo geral · ADR-0011 (2026 oculto; jogos internos
 contam uma vez no total do clube).
 **Protótipo:** não há.
@@ -265,10 +268,10 @@ totais de carreira (mesmas colunas da Issue 4); opção "Todas as categorias" no
 6. **Teste**: `summarizeByYear` (anos ordenados, total geral = soma, 2026 fora).
 
 **Critérios de aceitação:**
-- [ ] Adulto, todos os anos: linhas 2018 (15 jogos) e 2019 (36 jogos, os importados) + total.
+- [x] Adulto, todos os anos: linhas 2018 (15 jogos) e 2019 (36 jogos, os importados) + total.
       A planilha lista 37 em 2019; a diferença é conhecida (jogos não confirmados, P-17).
-- [ ] Clicar em 2018 leva ao resumo anual de 2018.
-- [ ] "Todas as categorias" soma as categorias sem duplicar jogos.
+- [x] Clicar em 2018 leva ao resumo anual de 2018.
+- [x] "Todas as categorias" soma as categorias sem duplicar jogos.
 
 **⚠ Pendências (confirmar):** P-23 (regra de jogo interno só quando existir).
 
