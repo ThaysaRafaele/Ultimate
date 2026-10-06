@@ -4,34 +4,23 @@ import { NavBar } from "@/components/NavBar";
 import { OverviewGames } from "@/components/OverviewGames";
 import { OverviewPlayers } from "@/components/OverviewPlayers";
 import { OverviewSummary } from "@/components/OverviewSummary";
+import { OverviewTabs } from "@/components/OverviewTabs";
 import { OverviewYears } from "@/components/OverviewYears";
+import { ExportButton } from "@/components/ExportButton";
 import { YearFilter } from "@/components/YearFilter";
 import { ALL_TEAMS_ID, findTeamLabel } from "@/lib/teams";
 import { getAllTeams } from "@/lib/teams-repo";
-import {
-  availableYears,
-  othersPoints,
-  summarizeByYear,
-  summarizeGames,
-  summarizePlayers,
-} from "@/lib/overview-calc";
-import {
-  getActiveTeamAthletes,
-  getPlayerStatsForYear,
-  getRealizedGameDates,
-  getRealizedGames,
-} from "@/lib/overview-repo";
-
-// ?year=todos opens the "Resumo geral" (every visible year).
-const ALL_YEARS = "todos";
-const ALL_TEAMS_LABEL = "Todas as categorias";
+import { availableYears, summarizeByYear, summarizeGames } from "@/lib/overview-calc";
+import { loadOverview } from "@/lib/overview-data";
+import { ALL_TEAMS_LABEL, ALL_YEARS_PARAM } from "@/lib/overview-export";
+import { getActiveTeamAthletes, getRealizedGameDates } from "@/lib/overview-repo";
 
 export default async function VisaoGeralPage({
   searchParams,
 }: Readonly<{
-  searchParams: Promise<{ team?: string; year?: string }>;
+  searchParams: Promise<{ team?: string; year?: string; aba?: string }>;
 }>) {
-  const { team, year } = await searchParams;
+  const { team, year, aba } = await searchParams;
 
   const allTeams = await getAllTeams();
   const activeTeams = allTeams.filter((t) => t.active);
@@ -63,23 +52,22 @@ export default async function VisaoGeralPage({
   const gameDates = await getRealizedGameDates(teamFilter);
   const years = availableYears(gameDates);
   const onlyHiddenYears = years.length === 0 && gameDates.length > 0;
-  const allYears = year === ALL_YEARS && years.length > 0;
+  const allYears = year === ALL_YEARS_PARAM && years.length > 0;
   const selectedYear = allYears ? null : years.includes(Number(year)) ? Number(year) : (years[0] ?? null);
   const hasPeriod = allYears || selectedYear !== null;
-  const [games, teamAthletes, playerRows] = await Promise.all([
-    hasPeriod ? getRealizedGames(teamFilter, selectedYear) : Promise.resolve([]),
+  const [overview, teamAthletes] = await Promise.all([
+    hasPeriod ? loadOverview(teamFilter, selectedYear) : null,
     selectedYear ? getActiveTeamAthletes(teamFilter) : Promise.resolve([]),
-    hasPeriod ? getPlayerStatsForYear(teamFilter, selectedYear) : Promise.resolve([]),
   ]);
-  const byYear = summarizeByYear(games);
-  const summary = allYears ? byYear.total : summarizeGames(games);
-  const players = summarizePlayers(playerRows);
+  const games = overview?.games ?? [];
+  const players = overview?.players ?? [];
+  const others = overview?.othersPoints ?? 0;
+  const summary = overview?.summary ?? summarizeGames([]);
+  const byYear = overview?.byYear ?? summarizeByYear([]);
   const teamLabels = allTeamsSelected ? Object.fromEntries(allTeams.map((t) => [t.id, t.label])) : undefined;
   const yearHref = (y: number) => `/visao-geral?team=${teamId}&year=${y}`;
   const gamesHref = allTeamsSelected ? "/jogos" : `/jogos?team=${teamId}`;
-  // With realized games missing the final score, the official total is
-  // incomplete and the difference would be misleading: hide the row.
-  const others = summary.withoutScore > 0 ? 0 : othersPoints(summary.pointsFor, players);
+  const hasData = summary.played > 0;
 
   return (
     <div className="flex-1 flex flex-col">
@@ -97,20 +85,52 @@ export default async function VisaoGeralPage({
               </h1>
             </div>
             {years.length > 0 && (
-              <YearFilter years={years} selected={selectedYear} allValue={ALL_YEARS} />
+              <div className="flex items-center gap-2.5 max-md:w-full">
+                <YearFilter years={years} selected={selectedYear} allValue={ALL_YEARS_PARAM} />
+                <ExportButton
+                  key={`${teamId}-${allYears ? ALL_YEARS_PARAM : selectedYear}`}
+                  team={teamId}
+                  year={allYears ? ALL_YEARS_PARAM : String(selectedYear)}
+                  disabled={!hasData}
+                />
+              </div>
             )}
           </div>
 
-          {allYears && summary.played > 0 ? (
+          {hasData && (allYears || selectedYear) ? (
             <>
-              <OverviewYears years={byYear.years} total={byYear.total} yearHref={yearHref} />
-              <OverviewPlayers players={players} year={null} othersPoints={others} teamGames={summary.played} />
-            </>
-          ) : selectedYear && summary.played > 0 ? (
-            <>
-              <OverviewSummary summary={summary} />
-              <OverviewGames games={games} teamAthletes={teamAthletes} teamLabels={teamLabels} />
-              <OverviewPlayers players={players} year={selectedYear} othersPoints={others} teamGames={summary.played} />
+              <OverviewSummary summary={summary} allYears={allYears} />
+              <OverviewTabs
+                initial={aba}
+                tabs={[
+                  allYears
+                    ? {
+                        id: "anos",
+                        label: "Ano a ano",
+                        count: byYear.years.length,
+                        content: <OverviewYears years={byYear.years} total={byYear.total} yearHref={yearHref} />,
+                      }
+                    : {
+                        id: "jogos",
+                        label: "Jogos",
+                        count: games.length,
+                        content: <OverviewGames games={games} teamAthletes={teamAthletes} teamLabels={teamLabels} />,
+                      },
+                  {
+                    id: "jogadores",
+                    label: "Jogadores",
+                    count: players.length,
+                    content: (
+                      <OverviewPlayers
+                        players={players}
+                        year={selectedYear}
+                        othersPoints={others}
+                        teamGames={summary.played}
+                      />
+                    ),
+                  },
+                ]}
+              />
             </>
           ) : hasPeriod ? (
             <div className="border border-dashed border-border-dash rounded-xl py-16 px-6 text-center">

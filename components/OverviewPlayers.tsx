@@ -2,6 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { SearchInput } from "@/components/SearchInput";
+import { matchesSearch } from "@/lib/text-search";
 import type { PlayerSummary, ShotLine } from "@/lib/overview-calc";
 
 type Mode = "totais" | "medias";
@@ -49,7 +52,17 @@ export function OverviewPlayers({
   othersPoints: number;
   teamGames: number;
 }>) {
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("totais");
+
+  // Back link of the profile: this same overview, on the players tab.
+  const profileHref = (athleteId: number) => {
+    const back = new URLSearchParams(searchParams.toString());
+    back.set("aba", "jogadores");
+    const query = new URLSearchParams({ voltar: `/visao-geral?${back}` });
+    if (year) query.set("year", String(year));
+    return `/perfil/${athleteId}?${query}`;
+  };
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "points", dir: "desc" });
 
   const sorted = useMemo(() => {
@@ -65,6 +78,13 @@ export function OverviewPlayers({
     });
   }, [players, sort, mode]);
 
+  const [search, setSearch] = useState("");
+  const searching = search.trim() !== "";
+  const visible = useMemo(
+    () => (searching ? sorted.filter((p) => matchesSearch(search, [p.nickname, p.name])) : sorted),
+    [sorted, search, searching]
+  );
+
   function toggleSort(key: SortKey) {
     setSort((s) =>
       s.key === key ? { key, dir: s.dir === "desc" ? "asc" : "desc" } : { key, dir: key === "name" ? "asc" : "desc" }
@@ -72,17 +92,27 @@ export function OverviewPlayers({
   }
 
   return (
-    <section className="mt-9 max-md:mt-7">
-      <div className="flex items-end justify-between gap-3 mb-3.5 max-md:flex-col max-md:items-start">
-        <div>
-          <h2 className="font-heading font-bold text-2xl uppercase text-ink">
-            {year ? "Jogadores do ano" : "Jogadores em todos os anos"}
-          </h2>
-          <p className="text-sm text-muted-1">
-            {players.length} {players.length === 1 ? "jogador" : "jogadores"} com estatísticas lançadas
-          </p>
-        </div>
-        <ModeToggle mode={mode} onChange={setMode} />
+    <section aria-label={year ? "Jogadores do ano" : "Jogadores em todos os anos"}>
+      <div className="flex items-center justify-between gap-3 mb-3.5 max-md:flex-col max-md:items-stretch">
+        <p className="text-sm text-muted-1">
+          {searching
+            ? `${visible.length} de ${players.length} jogadores`
+            : `${players.length} ${players.length === 1 ? "jogador" : "jogadores"} com estatísticas lançadas`}
+          {players.length > 0 && <span className="max-md:block"> · toque no nome para ver o perfil completo</span>}
+        </p>
+        {players.length > 0 && (
+          <div className="flex items-center gap-2.5 max-md:flex-col max-md:items-stretch">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Buscar jogador…"
+              ariaLabel="Buscar jogador por nome ou apelido"
+              wrapperClassName="h-10 w-56 max-md:w-full"
+              className="border-[1.5px] border-border-input rounded-lg px-3 text-[15px] text-zinc-800 bg-white"
+            />
+            <ModeToggle mode={mode} onChange={setMode} />
+          </div>
+        )}
       </div>
 
       {players.length === 0 ? (
@@ -90,6 +120,17 @@ export function OverviewPlayers({
           {year
             ? "Nenhuma estatística de jogador foi lançada nos jogos deste ano."
             : "Nenhuma estatística de jogador foi lançada nos jogos ainda."}
+        </div>
+      ) : visible.length === 0 ? (
+        <div className="border border-dashed border-border-dash rounded-xl py-12 px-6 text-center">
+          <p className="text-sm text-muted-2 mb-3">Nenhum jogador encontrado para “{search.trim()}”.</p>
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            className="text-sm font-bold text-brand-red hover:underline cursor-pointer"
+          >
+            Limpar busca
+          </button>
         </div>
       ) : (
         <div className="bg-white border border-border-light rounded-xl overflow-x-auto">
@@ -108,26 +149,36 @@ export function OverviewPlayers({
               </tr>
             </thead>
             <tbody>
-              {sorted.map((p) => {
+              {visible.map((p) => {
                 const stats = mode === "totais" ? p.totals : p.averages;
                 const fmt = mode === "totais" ? (n: number) => n.toLocaleString("pt-BR") : decimal;
                 return (
                   <tr key={p.athleteId} className="group border-b border-border-light last:border-b-0 hover:bg-bg-subtle">
                     <td className="sticky left-0 z-10 bg-white group-hover:bg-bg-subtle px-4 py-2.5 min-w-40 max-md:min-w-32 shadow-[1px_0_0_var(--color-border-light)]">
                       <Link
-                        href={year ? `/perfil/${p.athleteId}?year=${year}` : `/perfil/${p.athleteId}`}
-                        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red rounded"
-                        title={year ? "Ver perfil no ano" : "Ver perfil"}
+                        href={profileHref(p.athleteId)}
+                        className="group/link flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red rounded"
+                        title={year ? `Ver o perfil de ${p.nickname ?? p.name} em ${year}` : `Ver o perfil de ${p.nickname ?? p.name}`}
                       >
-                        <span className="font-bold text-ink hover:text-brand-red">{p.nickname ?? p.name}</span>
-                        {!p.active && (
-                          <span className="ml-1.5 align-middle text-[10px] font-bold uppercase tracking-[0.06em] text-muted-1 border border-border-light rounded-full px-1.5 py-px">
-                            Inativo
+                        <span className="min-w-0 flex-1">
+                          <span className="font-bold text-ink underline decoration-border-input decoration-1 underline-offset-4 group-hover/link:text-brand-red group-hover/link:decoration-brand-red">
+                            {p.nickname ?? p.name}
                           </span>
-                        )}
-                        {p.nickname && (
-                          <span className="block text-[11px] text-muted-1 truncate max-w-48">{p.name}</span>
-                        )}
+                          {!p.active && (
+                            <span className="ml-1.5 align-middle text-[10px] font-bold uppercase tracking-[0.06em] text-muted-1 border border-border-light rounded-full px-1.5 py-px">
+                              Inativo
+                            </span>
+                          )}
+                          {p.nickname && (
+                            <span className="block text-[11px] text-muted-1 truncate max-w-48">{p.name}</span>
+                          )}
+                        </span>
+                        <span
+                          aria-hidden
+                          className="flex-shrink-0 w-6 h-6 rounded-full bg-bg-subtle-2 text-muted-1 inline-flex items-center justify-center text-sm font-bold group-hover/link:bg-brand-red group-hover/link:text-white transition-colors"
+                        >
+                          ›
+                        </span>
                       </Link>
                     </td>
                     <Num>{p.games}</Num>
@@ -143,7 +194,7 @@ export function OverviewPlayers({
                   </tr>
                 );
               })}
-              {othersPoints !== 0 && (
+              {othersPoints !== 0 && !searching && (
                 <tr className="bg-bg-subtle text-muted-1">
                   <td
                     className="sticky left-0 z-10 bg-bg-subtle px-4 py-2.5 italic shadow-[1px_0_0_var(--color-border-light)]"

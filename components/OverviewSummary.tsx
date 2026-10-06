@@ -6,7 +6,10 @@ const integer = (n: number) => n.toLocaleString("pt-BR");
 const signed = (n: number, format: (v: number) => string) => (n > 0 ? `+${format(n)}` : format(n));
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-export function OverviewSummary({ summary }: Readonly<{ summary: GamesSummary }>) {
+export function OverviewSummary({
+  summary,
+  allYears,
+}: Readonly<{ summary: GamesSummary; allYears?: boolean }>) {
   const { played, wins, losses, draws, withoutScore } = summary;
   const balanceTone =
     summary.balance > 0 ? "text-emerald-600" : summary.balance < 0 ? "text-brand-red" : "text-ink";
@@ -16,7 +19,7 @@ export function OverviewSummary({ summary }: Readonly<{ summary: GamesSummary }>
       <Card label="Jogos">
         <Value>{integer(played)}</Value>
         <Hint>
-          {withoutScore > 0 ? `+ ${plural(withoutScore, "realizado", "realizados")} sem placar` : "realizados no ano"}
+          {withoutScore > 0 ? `+ ${plural(withoutScore, "realizado", "realizados")} sem placar` : allYears ? "em todos os anos" : "realizados no ano"}
         </Hint>
       </Card>
 

@@ -1,5 +1,5 @@
 // Skeleton shown while the overview queries run; mirrors the page layout
-// (header bar, red nav, title and the six summary cards).
+// (header bar, red nav, title, the six summary cards and the tabs).
 export default function Loading() {
   return (
     <div className="flex-1 flex flex-col" role="status" aria-busy="true" aria-label="Carregando visão geral">
@@ -14,6 +14,11 @@ export default function Loading() {
               <div key={i} className="bg-white border border-border-light rounded-xl h-[118px]" />
             ))}
           </div>
+          <div className="flex gap-4 mt-8 max-md:mt-6 border-b border-border-light pb-3">
+            <div className="h-6 w-28 bg-zinc-200 rounded" />
+            <div className="h-6 w-32 bg-zinc-200 rounded" />
+          </div>
+          <div className="bg-white border border-border-light rounded-xl h-64 mt-5" />
         </div>
       </main>
     </div>

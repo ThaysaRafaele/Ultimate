@@ -27,11 +27,8 @@ export function OverviewYears({
   yearHref,
 }: Readonly<{ years: YearSummary[]; total: GamesSummary; yearHref: (year: number) => string }>) {
   return (
-    <section>
-      <div className="flex items-baseline justify-between mb-3.5">
-        <h2 className="font-heading font-bold text-2xl uppercase text-ink">Ano a ano</h2>
-        <span className="text-sm text-muted-1 max-md:hidden">Clique no ano para ver o resumo dele</span>
-      </div>
+    <section aria-label="Ano a ano">
+      <p className="text-sm text-muted-1 mb-3.5">Toque no ano para ver o resumo completo dele.</p>
 
       <div className="bg-white border border-border-light rounded-xl overflow-x-auto">
         <table className="w-full text-sm border-collapse">
