@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { profileBackLink } from "@/lib/nav-items";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -24,7 +25,7 @@ export default async function PerfilPage({
   searchParams,
 }: Readonly<{
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ year?: string }>;
+  searchParams: Promise<{ year?: string; voltar?: string }>;
 }>) {
   const { id } = await params;
   const athleteId = Number(id);
@@ -44,7 +45,8 @@ export default async function PerfilPage({
   const yearOptions: number[] = [];
   for (let y = currentYear; y >= entryYearNum; y--) yearOptions.push(y);
 
-  const { year: yearParam } = await searchParams;
+  const { year: yearParam, voltar } = await searchParams;
+  const back = profileBackLink(voltar);
   const selectedYear =
     yearParam && yearOptions.includes(Number(yearParam)) ? Number(yearParam) : null;
 
@@ -61,10 +63,10 @@ export default async function PerfilPage({
       <main className="flex-1 px-10 max-md:px-4 py-8 max-md:py-5 pb-14">
         <div className="max-w-295 mx-auto">
           <Link
-            href="/"
+            href={back.href}
             className="bg-transparent border-none text-muted-1 font-semibold text-sm cursor-pointer mb-3.5 p-0 inline-block hover:text-ink"
           >
-            ← Voltar para atletas
+            ← {back.label}
           </Link>
 
           <div className="grid grid-cols-[320px_minmax(0,1fr)] max-md:grid-cols-1 gap-6 max-md:gap-4">
