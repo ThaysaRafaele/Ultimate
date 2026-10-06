@@ -3,20 +3,26 @@ import Link from "next/link";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { TeamSelector } from "@/components/TeamSelector";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
-import { findTeamLabel } from "@/lib/teams";
+import { ALL_TEAMS_ID, findTeamLabel } from "@/lib/teams";
 import type { Team } from "@/lib/teams";
 
 export function Header({
   team,
   teams,
   includeAllTeamsOption,
-}: Readonly<{ team: string; teams: Team[]; includeAllTeamsOption?: boolean }>) {
+  allTeamsLabel = "Todos",
+}: Readonly<{ team: string; teams: Team[]; includeAllTeamsOption?: boolean; allTeamsLabel?: string }>) {
   return (
     <header className="h-[72px] bg-ink-deep flex items-center justify-between px-6 flex-shrink-0">
       <div className="flex items-center gap-5">
-        <MobileNavDrawer teamLabel={findTeamLabel(teams, team)} />
+        <MobileNavDrawer teamLabel={team === ALL_TEAMS_ID ? allTeamsLabel : findTeamLabel(teams, team)} />
         <Image src="/logo.png" alt="Ultimate" height={44} width={44} className="h-11 w-auto block" priority />
-        <TeamSelector value={team} teams={teams} includeAllOption={includeAllTeamsOption} />
+        <TeamSelector
+          value={team}
+          teams={teams}
+          includeAllOption={includeAllTeamsOption}
+          allOptionLabel={allTeamsLabel}
+        />
       </div>
       <div className="flex items-center gap-5">
         <NotificationsBell />

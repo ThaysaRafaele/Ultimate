@@ -8,7 +8,8 @@ export function TeamSelector({
   value,
   teams,
   includeAllOption,
-}: Readonly<{ value: string; teams: Team[]; includeAllOption?: boolean }>) {
+  allOptionLabel = "Todos",
+}: Readonly<{ value: string; teams: Team[]; includeAllOption?: boolean; allOptionLabel?: string }>) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -29,7 +30,7 @@ export function TeamSelector({
         onChange={onChange}
         className="h-[38px] max-md:h-8 max-md:text-xs bg-charcoal text-white border border-zinc-border rounded-lg px-3 font-bold text-sm cursor-pointer"
       >
-        {includeAllOption && <option value={ALL_TEAMS_ID}>Todos</option>}
+        {includeAllOption && <option value={ALL_TEAMS_ID}>{allOptionLabel}</option>}
         {teams.map((t) => (
           <option key={t.id} value={t.id}>
             {t.label}

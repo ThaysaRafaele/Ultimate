@@ -44,3 +44,7 @@ next-env.d.ts
 # scratch files extracted from the design prototype bundle
 /_prototype_extracted.html
 /_logo_extracted.png
+
+# planilha e PDF do técnico (dados pessoais de atletas; mantidos só localmente)
+/docs/*.xlsx
+/docs/*.pdf

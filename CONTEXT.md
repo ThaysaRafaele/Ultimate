@@ -50,6 +50,11 @@ Não confundir com: **Ultimate** (o clube) e **Adversário**.
 `(pontos + rebotes + assistências + roubos + tocos) − (arremessos errados + erros + faltas)`,
 igual à planilha do técnico ([ADR-0006](docs/adr/0006-formula-eff.md)). Calculada, não armazenada.
 
+### Elenco (planilha)
+Nome do time do clube usado na planilha do técnico ("Ultimate", "Kids", "Blazers",
+"Ultimasters", "CG City", "Ultimate 30+"...). No sistema, cada elenco corresponde a uma
+**Categoria** (mapeamento em P-22). Não usar "elenco" na UI.
+
 ### Escalação (`game_lineups`)
 Atletas selecionados para um jogo específico. Só atletas ativos da categoria do jogo.
 
@@ -61,6 +66,10 @@ Pontos e EFF são derivados. Só em jogo **realizado**.
 ### Idade (anos completos)
 Anos completos entre a data de nascimento e uma data de referência (hoje, no código atual).
 Usada no limite da categoria e nos filtros de idade (Sub 16, 17, 18, 19, 20+, ..., 40+).
+
+### Jogo interno
+Jogo entre duas categorias do próprio clube (ex.: Blazers × Adulto). Conta vitória/derrota
+para cada categoria e uma vitória no total do clube ([ADR-0011](docs/adr/0011-visao-geral-regras-de-contagem.md)).
 
 ### Jogo (`games`)
 Partida de uma categoria do Ultimate contra um adversário, dentro de um campeonato, com
@@ -74,7 +83,8 @@ de maior EFF; o técnico pode trocar ([ADR-0005](docs/adr/0005-mvp-por-eff.md)).
 
 ### Placar (`our_score`, `their_score`, `q1..q4`, `ot`)
 Placar final do Ultimate e do adversário (obrigatório para marcar realizado) e placar por
-quarto + prorrogação (opcional, no boletim).
+quarto + prorrogação (opcional, no boletim). **Placar oficial = soma do boletim** quando há
+boletim ([ADR-0011](docs/adr/0011-visao-geral-regras-de-contagem.md)).
 
 ### Posição
 Uma de: Armador, Ala-Armador, Ala, Ala-Pivô, Pivô.
@@ -82,6 +92,12 @@ Uma de: Armador, Ala-Armador, Ala, Ala-Pivô, Pivô.
 ### Técnico
 Único ator do sistema hoje: cadastra atletas, categorias, jogos, escalação e boletim. Não há
 login (ver P-01).
+
+### Resumo anual (Visão geral)
+Consolidação de um ano civil: por categoria (jogos, vitórias/derrotas/empates, pontos
+pró/contra, médias, histórico de jogos) e por jogador (totais e médias do boletim), com
+exportação para Excel. **Resumo geral** = mesmo consolidado somando todos os anos.
+Regras em [ADR-0011](docs/adr/0011-visao-geral-regras-de-contagem.md).
 
 ### Totais do adversário (`games.opp_*`)
 Estatísticas agregadas do time adversário no jogo (rebotes, assistências, arremessos...),
@@ -99,7 +115,7 @@ preenchidas como total porque não há dados jogador a jogador do adversário.
 | P-06 | Dá para corrigir escalação/boletim de um jogo antigo em que jogou um atleta hoje inativo ou fora da categoria? | Deveria: aceitar atletas que já constam no jogo, mesmo inativos. Hoje a API recusa. ⚠ confirmar | `PUT /api/games/[id]/stats` e `/lineup` exigem atleta ativo e na categoria **hoje** |
 | P-07 | Um jogo realizado pode voltar para agendado? O que acontece com estatísticas, MVP e avisos já gravados? | Bloquear a volta enquanto houver estatísticas. ⚠ confirmar | `PATCH /api/games/[id]` aceita qualquer status; dados ficam órfãos de sentido |
 | P-08 | Pode trocar a categoria de um jogo que já tem escalação/estatísticas? | Bloquear se houver escalação ou estatísticas. ⚠ confirmar | `PATCH /api/games/[id]` troca `team` sem checar dependentes |
-| P-09 | Placar final, soma dos quartos e soma dos pontos dos atletas precisam bater? | Não bloquear; mostrar aviso de divergência no boletim. ⚠ confirmar | Nenhuma validação cruzada hoje; planilhas de 2019 já têm divergências |
+| P-09 | Placar final, soma dos quartos e soma dos pontos dos atletas precisam bater? | **Parcial (2026-10-05):** o placar oficial é a soma do boletim (ADR-0011). Falta decidir se o cadastro avisa quando divergem: default não bloquear, só avisar. ⚠ confirmar | Planilha 2018: final 938 × boletim 944 × TOTAL ANO 893 |
 | P-10 | MVP é o de maior EFF ou o cestinha? | Maior EFF como sugestão, técnico decide (código vence). ⚠ confirmar com técnico | Protótipo: "Cestinha / MVP" = maior pontuação; código: sugestão por EFF |
 | P-11 | Número da camisa deve ser único dentro da categoria? | Não validar. ⚠ confirmar | Sem regra no código nem no protótipo |
 | P-12 | Adversário vira cadastro (lista reaproveitável) ou continua texto livre? | Texto livre. ⚠ confirmar | Protótipo tem "Adversários" + "+ Cadastrar"; código usa texto por jogo (risco de duplicata, como já ocorreu com campeonatos) |
@@ -108,6 +124,9 @@ preenchidas como total porque não há dados jogador a jogador do adversário.
 | P-15 | "Análise com IA" entra no escopo? | Fora do escopo. ⚠ confirmar | Protótipo: "Análise com IA · Em breve · Gerar análise" |
 | P-16 | Importação de atletas por planilha: quais colunas? "Ano de entrada" vira qual data? | Colunas do protótipo (Nome, Posição, Número, Ano de entrada); ano vira 01/01 do ano. ⚠ confirmar | Protótipo: tela de importação XLS; app: "Importação em breve"; código exige data de entrada completa |
 | P-17 | Os 3 jogos de 2019 sem campeonato identificado e os nomes sem cadastro (João Luiz, João Green, Rafa Silva, Rodrigo, Wesley, Marcius, Machado, Nélio, Paulo, Leo/Léo/Léozão, Big/Big David/Davi) serão importados? | Ficam de fora até o técnico confirmar. | `scripts/import-games-2019.mjs` (cabeçalho), `docs/ultimate_basketball_2019.json` (`games_extra`) |
-| P-18 | Dados históricos importados têm rebotes só no total (gravados como defensivos), horário fictício 19:00 e datas estimadas (2019). Isso precisa aparecer na tela ou ser corrigido? | Manter como está, sem marcação. ⚠ confirmar | `scripts/import-games-2018.mjs`, `docs/ultimate_basketball_2019.json` (`obs`, `data_ficticia`) |
+| P-18 | Dados históricos importados têm rebotes só no total (gravados como defensivos), horário fictício 19:00 e datas estimadas (2019). Isso precisa aparecer na tela ou ser corrigido? | Datas fictícias **mantidas** (2026-10-05); falta decidir se a tela marca "data estimada". ⚠ confirmar | `scripts/import-games-2018.mjs`, `docs/ultimate_basketball_2019.json` (`obs`, `data_ficticia`) |
 | P-20 | A EFF média do perfil do atleta deve descontar faltas, como a EFF por jogo? | Sim; tratar como bug e somar `fouls` na média. ⚠ confirmar | `getAthleteAverages` em `lib/stats-repo.ts` usa `fouls: 0` (não soma faltas), divergindo de `computeEff` e da [ADR-0006](docs/adr/0006-formula-eff.md) |
+| P-21 | 🔔 **Lembrete: confirmar com o técnico.** O resumo anual deve trazer as métricas extras da planilha: duplo-duplo (D.D), triplo-duplo (T.D), jogos com 20+/25+ pontos (P+20, P+25), 10+/15+/20+ rebotes (R+10, R+15, R+20), 10+ assistências (A+10), EFF 20+ e colocação no campeonato? | Fora por enquanto (decisão de 2026-10-05). | Aba "Scout Atletas" (TOTAL ANO) e "Scoutt Geral" (colocação) |
+| P-22 | Qual categoria do sistema recebe os jogos de cada elenco da planilha? | **Parcial (técnico, 2026-10-05):** Ultimate 25+, 30+ e 40+ → `master`; Sub 25 **não** vira categoria; seus jogos vão para `adulto` (decidido pela usuária em 2026-10-05; informar ao técnico, ver `docs/recados-tecnico.md`). Proposta para o resto: Ultimate → `adulto`; Blazers → `blazers`; CG City → `cg-city`. **Faltam:** Ultimasters (default `master` ⚠), Kids e Ufms (sem equivalente ⚠). Consequência: os jogos de 2019 da Copa Maringá 25+ e da Copa Cuiabá 30+, hoje em `adulto`, devem ir para `master` (script na importação) | Categorias no banco: Adulto, Blazers, CG City, MASTER, Nível 1/2/3, Sub 16/18/20 |
+| P-23 | Como registrar um jogo interno para ele aparecer nas duas categorias? | Duas linhas em `games` (uma por categoria, placar espelhado) ligadas por um identificador comum; o total do clube conta uma vez. ⚠ confirmar na decomposição | ADR-0011; `games.team` guarda uma categoria só |
 | P-19 | Treinos, presença e mensalidades fazem parte do sistema? | Fora do escopo até virar épico próprio (precisa de grilling dedicado). | Nenhuma fonte (protótipo, código ou dados) menciona |

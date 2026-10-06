@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { NAV_ITEMS } from "@/lib/nav-items";
+import { NAV_ITEMS, navPath } from "@/lib/nav-items";
 
 export function MobileNavDrawer({
   teamLabel,
@@ -67,7 +67,7 @@ export function MobileNavDrawer({
                   );
                 }
 
-                const active = item.isActive(pathname);
+                const active = item.isActive(navPath(pathname, searchParams.get("voltar")));
                 const href = team ? `${item.href}?team=${team}` : item.href;
                 return (
                   <Link
