@@ -112,7 +112,7 @@ async function main() {
     WHERE team = ${TEAM_ID} AND status = 'realizado'
       AND game_date >= '2018-01-01' AND game_date <= '2018-12-31'
   `;
-  console.log(`Soma atual dos placares do Ultimate em 2018 (banco): ${total}` + (APPLY ? "" : " (antes do --apply)"));
+  console.log(`Soma atual dos placares do Ultimate em 2018 (banco): ${total}` + (APPLY || toFix === 0 ? "" : " (antes do --apply)"));
 }
 
 main().then(() => process.exit(0));

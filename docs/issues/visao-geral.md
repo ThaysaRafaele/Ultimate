@@ -98,8 +98,8 @@ erro); nenhuma dependência paga.
 
 ## Issue 2: Placar oficial de 2018 igual à soma do boletim
 
-> **Status: script pronto em 2026-10-05; falta a usuária rodar `--apply`.** Dry-run listou os
-> 3 jogos (ids 29, 30, 33) e nenhum outro; soma atual 938 → 944 após aplicar. No banco o
+> **Status: concluída em 2026-10-05 (`--apply` rodado pela usuária).** Dry-run listou os
+> 3 jogos (ids 29, 30, 33) e nenhum outro; soma 938 → 944; segunda execução sem mudanças. No banco o
 > campeonato "Jogos Abertos CG" se chama "JOGOS ABERTOS" (alias no script).
 
 **Contexto/Decisões:** ADR-0011 (placar oficial = soma do boletim completo) · ADR-0008
@@ -128,9 +128,9 @@ pelo `game_stats` do banco (incompleto: jogadores sem cadastro ficaram de fora).
 6. **Teste**: não se aplica (conferência pelo dry-run).
 
 **Critérios de aceitação:**
-- [ ] Dry-run lista exatamente os 3 jogos com os valores acima e nenhum outro.
-- [ ] Após `--apply` (feito pela usuária), soma dos placares do Ultimate em 2018 = 944.
-- [ ] Segunda execução informa "nada a alterar".
+- [x] Dry-run lista exatamente os 3 jogos com os valores acima e nenhum outro.
+- [x] Após `--apply` (feito pela usuária), soma dos placares do Ultimate em 2018 = 944.
+- [x] Segunda execução informa "nada a alterar".
 
 **⚠ Pendências (confirmar):** nenhuma.
 
