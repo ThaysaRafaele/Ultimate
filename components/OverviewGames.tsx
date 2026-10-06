@@ -25,7 +25,13 @@ const decimal = (n: number) =>
 export function OverviewGames({
   games,
   teamAthletes,
-}: Readonly<{ games: GameWithChampionship[]; teamAthletes: Athlete[] }>) {
+  teamLabels,
+}: Readonly<{
+  games: GameWithChampionship[];
+  teamAthletes: Athlete[];
+  // Set when showing every category: tags each game with its category.
+  teamLabels?: Record<string, string>;
+}>) {
   const [selected, setSelected] = useState<GameWithChampionship | null>(null);
   const router = useRouter();
   const groups = useMemo(() => groupByChampionship(games), [games]);
@@ -42,7 +48,7 @@ export function OverviewGames({
 
       <div className="flex flex-col gap-4">
         {groups.map((group) => (
-          <ChampionshipBlock key={group.name} group={group} onOpen={setSelected} />
+          <ChampionshipBlock key={group.name} group={group} onOpen={setSelected} teamLabels={teamLabels} />
         ))}
       </div>
 
@@ -64,7 +70,12 @@ export function OverviewGames({
 function ChampionshipBlock({
   group,
   onOpen,
-}: Readonly<{ group: ChampionshipGroup<GameWithChampionship>; onOpen: (g: GameWithChampionship) => void }>) {
+  teamLabels,
+}: Readonly<{
+  group: ChampionshipGroup<GameWithChampionship>;
+  onOpen: (g: GameWithChampionship) => void;
+  teamLabels?: Record<string, string>;
+}>) {
   const quarters = QUARTERS.filter((q) => q !== "ot" || group.hasOvertime);
   const { summary } = group;
   const gridCols = group.hasOvertime
@@ -113,7 +124,14 @@ function ChampionshipBlock({
                 className={`w-full text-left grid grid-cols-[minmax(0,1fr)_auto] ${gridCols} gap-x-2 items-center px-5 max-lg:px-4 py-3 cursor-pointer hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-red transition-colors`}
               >
                 <span className="text-[13px] text-muted-1 max-lg:col-span-2 max-lg:text-xs">{formatDateBR(g.gameDate)}</span>
-                <span className="font-bold text-ink truncate max-lg:text-[15px]">{g.opponent}</span>
+                <span className="font-bold text-ink truncate max-lg:text-[15px]">
+                  {g.opponent}
+                  {teamLabels && (
+                    <span className="ml-2 align-middle text-[10px] font-bold uppercase tracking-[0.06em] text-muted-1 border border-border-light rounded-full px-1.5 py-px">
+                      {teamLabels[g.team] ?? g.team}
+                    </span>
+                  )}
+                </span>
                 {quarters.map((q) => (
                   <QuarterCell key={q} score={quarterScore(g, q)} />
                 ))}

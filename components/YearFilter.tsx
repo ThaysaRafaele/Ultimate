@@ -6,7 +6,15 @@ export function YearFilter({
   years,
   selected,
   allOption = true,
-}: Readonly<{ years: number[]; selected: number | null; allOption?: boolean }>) {
+  allValue,
+}: Readonly<{
+  years: number[];
+  selected: number | null;
+  allOption?: boolean;
+  // Query value for "Todos os anos". Without it, that option just drops
+  // ?year= (pages where no year already means every year).
+  allValue?: string;
+}>) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -16,7 +24,10 @@ export function YearFilter({
   function onChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const value = e.target.value;
     const params = new URLSearchParams(searchParams.toString());
-    if (value === "all") params.delete("year");
+    if (value === "all") {
+      if (allValue) params.set("year", allValue);
+      else params.delete("year");
+    }
     else params.set("year", value);
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname);

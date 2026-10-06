@@ -42,7 +42,13 @@ export function OverviewPlayers({
   year,
   othersPoints,
   teamGames,
-}: Readonly<{ players: PlayerSummary[]; year: number; othersPoints: number; teamGames: number }>) {
+}: Readonly<{
+  players: PlayerSummary[];
+  // null = "Resumo geral": career totals over every visible year.
+  year: number | null;
+  othersPoints: number;
+  teamGames: number;
+}>) {
   const [mode, setMode] = useState<Mode>("totais");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "points", dir: "desc" });
 
@@ -69,7 +75,9 @@ export function OverviewPlayers({
     <section className="mt-9 max-md:mt-7">
       <div className="flex items-end justify-between gap-3 mb-3.5 max-md:flex-col max-md:items-start">
         <div>
-          <h2 className="font-heading font-bold text-2xl uppercase text-ink">Jogadores do ano</h2>
+          <h2 className="font-heading font-bold text-2xl uppercase text-ink">
+            {year ? "Jogadores do ano" : "Jogadores em todos os anos"}
+          </h2>
           <p className="text-sm text-muted-1">
             {players.length} {players.length === 1 ? "jogador" : "jogadores"} com estatísticas lançadas
           </p>
@@ -79,7 +87,9 @@ export function OverviewPlayers({
 
       {players.length === 0 ? (
         <div className="border border-dashed border-border-dash rounded-xl py-12 px-6 text-center text-sm text-muted-2">
-          Nenhuma estatística de jogador foi lançada nos jogos deste ano.
+          {year
+            ? "Nenhuma estatística de jogador foi lançada nos jogos deste ano."
+            : "Nenhuma estatística de jogador foi lançada nos jogos ainda."}
         </div>
       ) : (
         <div className="bg-white border border-border-light rounded-xl overflow-x-auto">
@@ -105,9 +115,9 @@ export function OverviewPlayers({
                   <tr key={p.athleteId} className="group border-b border-border-light last:border-b-0 hover:bg-bg-subtle">
                     <td className="sticky left-0 z-10 bg-white group-hover:bg-bg-subtle px-4 py-2.5 min-w-40 max-md:min-w-32 shadow-[1px_0_0_var(--color-border-light)]">
                       <Link
-                        href={`/perfil/${p.athleteId}?year=${year}`}
+                        href={year ? `/perfil/${p.athleteId}?year=${year}` : `/perfil/${p.athleteId}`}
                         className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red rounded"
-                        title="Ver perfil no ano"
+                        title={year ? "Ver perfil no ano" : "Ver perfil"}
                       >
                         <span className="font-bold text-ink hover:text-brand-red">{p.nickname ?? p.name}</span>
                         {!p.active && (
