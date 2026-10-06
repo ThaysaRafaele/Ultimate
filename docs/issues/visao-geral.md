@@ -282,6 +282,10 @@ passam; fluxo conferido no `npm run dev` (desktop e celular); UI revisada.
 
 ## Issue 6: Exportar relatório para Excel
 
+> **Status: implementada em 2026-10-05, aguardando revisão e commit da usuária.** Colunas da aba
+> Jogadores na ordem da "Scout Atletas", sem as métricas extras (P-21). Conferido no banco real:
+> Adulto 2018 = 15 jogos, 8V 7D, 944 × 857; Ibra 155 pts, Juliano 168.
+
 **Contexto/Decisões:** pedido do técnico (usa Excel) · ADR-0011 · preferência por opção
 gratuita (`CLAUDE.md`).
 **Protótipo:** não há.
@@ -307,9 +311,9 @@ categoria/ano da tela. **Fora:** PDF, envio por e-mail.
 6. **Teste**: `overview-export` (cabeçalhos e ordem das colunas, totais iguais aos da tela).
 
 **Critérios de aceitação:**
-- [ ] Adulto 2018 exporta `ultimate-adulto-2018.xlsx` que abre no Excel com 3 abas.
-- [ ] Números da planilha exportada iguais aos da tela.
-- [ ] Parâmetro inválido devolve erro 400 legível; botão mostra a mensagem.
+- [x] Adulto 2018 exporta `ultimate-adulto-2018.xlsx` que abre no Excel com 3 abas.
+- [x] Números da planilha exportada iguais aos da tela.
+- [x] Parâmetro inválido devolve erro 400 legível; botão mostra a mensagem.
 
 **⚠ Pendências (confirmar):** formato das colunas espelhar a "Scout Atletas" do técnico? Default:
 mesmas colunas da tela, na ordem da "Scout Atletas" sem as métricas extras (P-21).
