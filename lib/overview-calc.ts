@@ -224,6 +224,27 @@ export function othersPoints(teamPoints: number, players: readonly PlayerSummary
   return teamPoints - players.reduce((sum, p) => sum + p.totals.points, 0);
 }
 
+export type YearSummary = { year: number; summary: GamesSummary };
+
+// "Resumo geral": one line per calendar year (oldest first, like the coach's
+// sheet) plus the overall total. Hidden years stay out of both. Each game
+// belongs to one category, so summing categories never counts a game twice.
+export function summarizeByYear(games: readonly ScoredGame[]): { years: YearSummary[]; total: GamesSummary } {
+  const byYear = new Map<number, ScoredGame[]>();
+  for (const g of games) {
+    const year = Number(g.gameDate.slice(0, 4));
+    if (HIDDEN_YEARS.includes(year)) continue;
+    const list = byYear.get(year);
+    if (list) list.push(g);
+    else byYear.set(year, [g]);
+  }
+  const years = [...byYear.keys()].sort((a, b) => a - b);
+  return {
+    years: years.map((year) => ({ year, summary: summarizeGames(byYear.get(year)!) })),
+    total: summarizeGames(years.flatMap((y) => byYear.get(y)!)),
+  };
+}
+
 // Calendar years with at least one realized game, newest first, minus the
 // hidden ones.
 export function availableYears(gameDates: readonly string[]): number[] {

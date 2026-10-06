@@ -6,6 +6,7 @@ import {
   groupByChampionship,
   othersPoints,
   summarizeGames,
+  summarizeByYear,
   summarizePlayers,
 } from "@/lib/overview-calc";
 import type { PlayerTotalsRow, QuarterGame } from "@/lib/overview-calc";
@@ -168,5 +169,38 @@ describe("othersPoints", () => {
 
   it("fica negativo quando o boletim soma mais que o placar", () => {
     expect(othersPoints(10, summarizePlayers([player()]))).toBe(-9);
+  });
+});
+
+describe("summarizeByYear", () => {
+  it("separa por ano, do mais antigo ao mais recente, com total igual à soma", () => {
+    const { years, total } = summarizeByYear([
+      game(70, 60, "2019-03-10"),
+      game(58, 57, "2018-05-19"),
+      game(50, 65, "2019-08-02"),
+      game(59, 84, "2018-06-23"),
+    ]);
+    expect(years.map((y) => y.year)).toEqual([2018, 2019]);
+    expect(years[0].summary).toMatchObject({ played: 2, wins: 1, losses: 1, pointsFor: 117 });
+    expect(years[1].summary).toMatchObject({ played: 2, wins: 1, losses: 1, pointsFor: 120 });
+    expect(total).toMatchObject({ played: 4, wins: 2, losses: 2, pointsFor: 237, pointsAgainst: 266 });
+  });
+
+  it("deixa 2026 fora das linhas e do total", () => {
+    const { years, total } = summarizeByYear([game(58, 57, "2018-05-19"), game(90, 10, "2026-02-01")]);
+    expect(years.map((y) => y.year)).toEqual([2018]);
+    expect(total).toMatchObject({ played: 1, pointsFor: 58 });
+  });
+
+  it("conta jogos sem placar à parte, por ano e no total", () => {
+    const { years, total } = summarizeByYear([game(58, 57, "2018-05-19"), game(null, null, "2018-06-01")]);
+    expect(years[0].summary).toMatchObject({ played: 1, withoutScore: 1 });
+    expect(total.withoutScore).toBe(1);
+  });
+
+  it("devolve listas vazias e total zerado sem jogos", () => {
+    const { years, total } = summarizeByYear([]);
+    expect(years).toEqual([]);
+    expect(total.played).toBe(0);
   });
 });
