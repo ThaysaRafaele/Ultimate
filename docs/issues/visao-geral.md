@@ -98,6 +98,10 @@ erro); nenhuma dependência paga.
 
 ## Issue 2: Placar oficial de 2018 igual à soma do boletim
 
+> **Status: script pronto em 2026-10-05; falta a usuária rodar `--apply`.** Dry-run listou os
+> 3 jogos (ids 29, 30, 33) e nenhum outro; soma atual 938 → 944 após aplicar. No banco o
+> campeonato "Jogos Abertos CG" se chama "JOGOS ABERTOS" (alias no script).
+
 **Contexto/Decisões:** ADR-0011 (placar oficial = soma do boletim completo) · ADR-0008
 (padrão de scripts: dry-run, `--apply`, idempotente) · `docs/analise-planilha.md` §4.
 **Protótipo:** não há.
