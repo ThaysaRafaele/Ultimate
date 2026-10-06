@@ -4,12 +4,14 @@ export function SearchInput({
   value,
   onChange,
   placeholder,
+  ariaLabel,
   className = "",
   wrapperClassName = "",
 }: Readonly<{
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  ariaLabel?: string;
   className?: string;
   wrapperClassName?: string;
 }>) {
@@ -20,6 +22,7 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-label={ariaLabel ?? placeholder}
         className={`w-full h-full ${className} pr-8`}
       />
       {value && (
