@@ -23,50 +23,47 @@ o item e registre a resposta no `CONTEXT.md` (pendência correspondente) ou numa
 
 ## Importação 2020
 
-Origem: `docs/ultimate_basketball_2020.json` e `scripts/import-games-2020.mjs`.
-**Importado em 2026-11-16:** 17 jogos (8 Adulto, 9 Master), 4 campeonatos novos, escalação e
-boletim só dos atletas confirmados (incluindo Paulo, Lebron e Totó). Os 4 jogos do Kids e os
-nomes abaixo ficaram de fora; as pendências desta seção continuam abertas. Quando o técnico
-responder, os atletas entram por um script de atualização (como os rounds de 2019).
+Origem: `docs/ultimate_basketball_2020.json`, `scripts/import-games-2020.mjs` (importado em
+2026-11-16: 17 jogos, 8 Adulto e 9 Master) e `scripts/update-games-2020-round2.mjs` (respostas
+do técnico de 2026-11-17; ⚠ dry-run feito, `--apply` aguardando o backup do banco).
 
 ### Para informar
 
-- [ ] **Jogos do "30+" de 2020 vão para a categoria Master** e os do "Adulto" para Adulto (P-22).
-      Dois jogos da Copa América estavam com a categoria trocada na Scoutt Geral e foram
-      corrigidos pelo elenco do boletim: jogo 7 (vs América, 25/10) é 30+; jogo 9 (vs América,
-      07/11) é Adulto.
-- [ ] **Datas:** só o amistoso de 08/02/2020 vs Neon tem data real; as outras 20 são estimadas
-      (P-18). Se o técnico tiver as datas, dá para corrigir depois.
-- [ ] **Vinculados por apelido** (cadastro criado depois de 2019): "Paulo" = Paulo Roberto da
-      Silva, "Lebron" = Eduardo Cavalcante de Oliveira, "Totó" = Antônio Carlos de Abreu.
+- [ ] Jogos do "30+" de 2020 estão na categoria Master e os do "Adulto" no Adulto (P-22). Na
+      Copa América, os jogos 7 (30+) e 9 (Adulto) estavam com a categoria trocada na Scoutt Geral
+      e foram corrigidos pelo elenco do boletim.
+- [ ] Vinculados por apelido (cadastro único): "Paulo" = Paulo Roberto da Silva, "Lebron" =
+      Eduardo Cavalcante de Oliveira, "Totó" = Antônio Carlos de Abreu.
 
-### Para confirmar
+### Resolvido (técnico, 2026-11-17)
 
-- [ ] **Quem é quem** (as estatísticas ficam de fora até confirmar):
-  - "Gui" (Férias Cup, 3 jogos, MVP do jogo 3 com 28 pts): Guigas ou Guilherme Widal?
-  - "Big" (Copa América Adulto, 5 jogos): é o Davi Budib ("Big Davi")?
-  - "Jp" (Copa América Adulto, 5 jogos): é o João Grabalos?
-  - "Jonatas" (Copa América Adulto, 5 jogos): é o Jhonatan de 2018/2019?
-  - "Léo" (Circuito Master, 3 jogos): é o Leonardo Stival?
-  - "Fabinho" (amistosos 30+, 2 jogos): é o Fabio Seixas, que hoje está no CG City/Nível 3?
-  - "Rafa" (30+, 4 jogos): no amistoso de 08/02 é o Rafa Paludo; na Copa América 30+ a aba
-    Scout Atletas indica Rafa Pivante. São pessoas diferentes?
-  - "Rafa Doncic" (Copa América 30+, 2 jogos): atleta novo ou o Rafa Pivante?
-- [ ] **Cadastrar?** Marcius (8 jogos), Negão (3 jogos; MVP de 2 jogos da Férias Cup; qual o
-      nome?), Rodrigo (2 jogos 30+) e Thiago (2 jogos 30+). Sem cadastro, ficam de fora.
-- [ ] **Categoria dos atletas que jogaram no 30+**: João, Chico, Paulo, Oruê, Vini e Dalton hoje
-      estão só no Adulto. Incluir também no Master? Sem isso, a tela pode recusar corrigir a
-      escalação/boletim desses jogos (P-06).
-- [ ] **Kids** (4 jogos de 2020: Amistoso avulso vs Carneirão e Copa América vs Cemte Neon,
-      North Wolf e NTB): qual categoria do sistema recebe? (P-22). Candidatos já cadastrados
-      para os nomes do Kids: Segóvia (58), Bruno A. = Bruno Arias (57), Mateus = Mateus Zeni
-      (62), Gustavo = Gustavo Freire (61), Luiz = Luiz Santos (74); Jonas, Dílan e Bruno sem
-      cadastro.
-- [ ] **Placar com 1 ponto de diferença** entre a Scoutt Geral e o boletim do adversário:
-      Férias Cup jogo 2 vs Funlec (62 × 63), Copa América jogo 6 vs North Wolf (41 × 40, Kids)
-      e jogo 7 vs América (48 × 49). O script grava o placar da Scoutt Geral, mas a ADR-0011
-      diz que vale a soma do boletim. Qual vale?
-- [ ] **Circuito Master jogo 3 vs Neon (07/03)**: os quartos da planilha somam 49 × 49, mas o
-      placar final é 66 × 58. O técnico tem os quartos certos?
-- [ ] **Cadastros duplicados**: Guigas (52 inativo e 53 ativo) e Renan Anacleto (38 inativo e
-      44 ativo). Mesclar?
+- [x] **Quem é quem:** Jp = João Grabalos; Big = Davi Budib; Jonatas = Jhonatan; Gui (Férias
+      Cup) = Guigas; Léo (Circuito Master) = Leonardo Stival; Rafa e Rafa Doncic = Rafa Paludo
+      (na Copa América jogo 7 os dois aparecem e o boletim é somado); Negão = Claudinei.
+- [x] **Não precisa vincular:** Fabinho (é outro Fabinho, não o Fabio Seixas), Rodrigo, e no
+      Kids Jonas e Dílan.
+- [x] **Thiago (30+)** = Thiago Segóvia (58). ⚠ O cadastro do 58 é de 26/01/1998 (22 anos em
+      2020) e ele jogou no 30+: confirmar antes do `--apply`.
+- [x] **Categorias:** João, Chico, Paulo, Oruê, Vini e Dalton passam a ter também Master.
+- [x] **Kids = antigo blazers:** os 4 jogos do Kids entram em `blazers`. Nomes confirmados:
+      Segóvia, Bruno Arias ("Bruno" e "Bruno A." são o mesmo), Mateus Zeni, Gustavo Freire e
+      Luiz Santos. Jhone, Mateus, Gustavo e Luiz passam a ter também Blazers.
+- [x] **Placar:** vale a Scoutt Geral (Funlec 62, North Wolf 41, América 48). Para os dados
+      históricos, a diferença de 1 ponto no boletim do adversário fica como está.
+- [x] **Circuito Master jogo 3 vs Neon:** teve prorrogação. Quartos 14 × 12, 14 × 19, 12 × 7,
+      9 × 11 e prorrogação 17 × 9 (66 × 58).
+- [x] **Datas:** seguem fictícias, reposicionadas: Férias Cup em março, Circuito Master em
+      junho, Copa América a partir de setembro (os 4 últimos jogos caem no início de outubro
+      para manter o intervalo semanal). Só o amistoso de 08/02 tem data real.
+- [x] **Cadastros duplicados:** mesclar Guigas (52 → 53) e Renan Anacleto (38 → 44), mantendo o
+      ativo.
+
+### Pendente
+
+- [ ] **Marcius** (8 jogos no Adulto): aguardando nome completo e data de nascimento para o
+      cadastro. Depois, vincular por um round 3.
+- [ ] **Rafa Paludo (26) e Thiago Segóvia (58)** jogaram no 30+, mas não estão no Master.
+      Incluir? Sem isso, a tela pode recusar corrigir esses jogos (P-06).
+- [ ] **Mescla:** o cadastro que fica perde dados do inativo. Guigas fica sem CG City, com
+      entrada 05/05/2019 (o 52 tinha 05/03/2019) e camisa 31 (o 52 tinha 34). Renan fica com
+      entrada 01/01/2019, mas tem jogos de 2018 (o 38 tinha 01/01/2018). Ajustar algo?
