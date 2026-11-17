@@ -25,7 +25,8 @@ o item e registre a resposta no `CONTEXT.md` (pendência correspondente) ou numa
 
 Origem: `docs/ultimate_basketball_2020.json`, `scripts/import-games-2020.mjs` (importado em
 2026-11-16: 17 jogos, 8 Adulto e 9 Master) e `scripts/update-games-2020-round2.mjs` (respostas
-do técnico de 2026-11-17; ⚠ dry-run feito, `--apply` aguardando o backup do banco).
+do técnico de 2026-11-17; aplicado em 2026-11-17: 31 vínculos, 4 jogos do Kids em `blazers`,
+mesclas Guigas 52 → 53 e Renan 38 → 44, datas e prorrogação).
 
 ### Para informar
 
@@ -43,7 +44,7 @@ do técnico de 2026-11-17; ⚠ dry-run feito, `--apply` aguardando o backup do b
 - [x] **Não precisa vincular:** Fabinho (é outro Fabinho, não o Fabio Seixas), Rodrigo, e no
       Kids Jonas e Dílan.
 - [x] **Thiago (30+)** = Thiago Segóvia (58). ⚠ O cadastro do 58 é de 26/01/1998 (22 anos em
-      2020) e ele jogou no 30+: confirmar antes do `--apply`.
+      2020) e ele jogou no 30+; vinculado mesmo assim, com o ok da Thaysa (2026-11-17).
 - [x] **Categorias:** João, Chico, Paulo, Oruê, Vini e Dalton passam a ter também Master.
 - [x] **Kids = antigo blazers:** os 4 jogos do Kids entram em `blazers`. Nomes confirmados:
       Segóvia, Bruno Arias ("Bruno" e "Bruno A." são o mesmo), Mateus Zeni, Gustavo Freire e
