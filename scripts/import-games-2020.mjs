@@ -9,6 +9,13 @@
 // game_date) e pulado se já existir; lineup/stats usam ON CONFLICT DO NOTHING.
 // Mesmo padrão de scripts/import-games-2019.mjs (ver ADR-0008).
 //
+// ⚠ Importado em 2026-11-16. As respostas do técnico (Kids, nomes ambíguos,
+// prorrogação e datas) são aplicadas por scripts/update-games-2020-round2.mjs;
+// o JSON já está com as datas novas, então NÃO rodar este script de novo antes
+// do --apply do round 2 (as chaves de data não bateriam e duplicaria jogos).
+// Os jogos do Kids (`team_sugerido: "blazers"`) são importados pelo round 2,
+// não por este script.
+//
 // Diferenças em relação a 2019:
 // - Categoria por jogo, vinda de `team_sugerido` (não há TEAM_ID fixo):
 //   "Adulto" → `adulto`, "30+" → `master` (P-22). Jogos com
@@ -65,7 +72,7 @@ const PLAYER_MAP_2019 = {
   "Ciro": 46,
   "Claudinei": 45,
   "Dalton": 37,
-  "Guilherme": 52,
+  "Guilherme": 53, // era 52; cadastro duplicado mesclado no 53 (update-games-2020-round2)
   "Hugo": 27,
   "Ibra": 35,
   "Jhone": 51,
@@ -79,7 +86,7 @@ const PLAYER_MAP_2019 = {
   "Orue": 8,
   "Petini": 41,
   "Rafa": 26,
-  "Renan": 38,
+  "Renan": 44, // era 38; cadastro duplicado mesclado no 44 (update-games-2020-round2)
   "Roger": 42,
   "Thimoteo": 24,
   "Timoteo": 24,
@@ -208,12 +215,13 @@ async function getOrCreateChampionship(name, cache) {
   return row;
 }
 
-const sumQuarters = (q, side) => q.q1[side] + q.q2[side] + q.q3[side] + q.q4[side];
+const sumQuarters = (q, side) => q.q1[side] + q.q2[side] + q.q3[side] + q.q4[side] + (q.prorrogacao?.[side] ?? 0);
 
 async function main() {
   const data = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "docs", "ultimate_basketball_2020.json"), "utf8"));
-  const importable = data.games.filter((g) => g.team_sugerido);
-  const leftOut = data.games.filter((g) => !g.team_sugerido);
+  // Kids (blazers) entra pelo update-games-2020-round2.mjs.
+  const importable = data.games.filter((g) => g.team_sugerido && g.team_sugerido !== "blazers");
+  const leftOut = data.games.filter((g) => !g.team_sugerido || g.team_sugerido === "blazers");
 
   console.log(`Modo: ${APPLY ? "APPLY (gravando no banco)" : "DRY-RUN (nada será gravado)"}`);
   console.log(`Jogos no arquivo: ${data.games.length} (${importable.length} com categoria, ${leftOut.length} sem categoria ficam de fora)\n`);
@@ -314,7 +322,7 @@ async function main() {
         our_score, their_score,
         q1_our_score, q1_their_score, q2_our_score, q2_their_score,
         q3_our_score, q3_their_score, q4_our_score, q4_their_score,
-        mvp_athlete_id,
+        ot_our_score, ot_their_score, mvp_athlete_id,
         opp_rebounds_off, opp_rebounds_def, opp_assists, opp_steals, opp_blocks,
         opp_turnovers, opp_fouls, opp_fg2_made, opp_fg2_attempted,
         opp_fg3_made, opp_fg3_attempted, opp_ft_made, opp_ft_attempted
@@ -323,7 +331,7 @@ async function main() {
         ${g.placar_final.nos}, ${g.placar_final.adver},
         ${q.q1.nos}, ${q.q1.adver}, ${q.q2.nos}, ${q.q2.adver},
         ${q.q3.nos}, ${q.q3.adver}, ${q.q4.nos}, ${q.q4.adver},
-        ${mvpAthleteId},
+        ${q.prorrogacao?.nos ?? null}, ${q.prorrogacao?.adver ?? null}, ${mvpAthleteId},
         ${opp?.rebOff ?? null}, ${opp?.rebDef ?? null}, ${opp?.ast ?? null}, ${opp?.roubos ?? null}, ${opp?.toco ?? null},
         ${opp?.erros ?? null}, ${opp?.faltas ?? null}, ${opp?.pt2_c ?? null}, ${opp?.pt2_t ?? null},
         ${opp?.pt3_c ?? null}, ${opp?.pt3_t ?? null}, ${opp?.ll_c ?? null}, ${opp?.ll_t ?? null}

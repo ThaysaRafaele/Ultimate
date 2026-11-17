@@ -47,7 +47,7 @@ const PLAYER_MAP = {
   "Dalton": 37,
   "Guto": 39,
   "Juliano": 40,
-  "Renan": 38,
+  "Renan": 44, // era 38; cadastro duplicado mesclado no 44 (update-games-2020-round2)
   "Roger": 42,
   "Vini": 33,
   "Rafa": 26, // RAFAEL PALUDO DE MARCO

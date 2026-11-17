@@ -53,7 +53,7 @@ const PLAYER_MAP = {
   "Ciro": 46,
   "Claudinei": 45,
   "Dalton": 37,
-  "Guilherme": 52,
+  "Guilherme": 53, // era 52; cadastro duplicado mesclado no 53 (update-games-2020-round2)
   "Ibra": 35,
   "Jhone": 51,
   "Jonatan": 43,
@@ -66,7 +66,7 @@ const PLAYER_MAP = {
   "Orue": 8,
   "Petini": 41,
   "Rafa": 26,
-  "Renan": 38,
+  "Renan": 44, // era 38; cadastro duplicado mesclado no 44 (update-games-2020-round2)
   "Roger": 42,
   "Thimoteo": 24,
   "Timoteo": 24,

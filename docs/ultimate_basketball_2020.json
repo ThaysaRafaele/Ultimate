@@ -10,8 +10,9 @@
     "mvp_sugerido = maior EFF entre atletas da Ultimate",
     "Blocos \"master maringa 2019\" e \"master cuiaba 2019\" na faixa de 2020 da aba Sout Jogos Masculino são de 2019 e foram ignorados",
     "categoria_planilha usa os nomes da planilha (Adulto, 30+, Kids). Mapear para as categorias do sistema com o mesmo critério usado em 2019",
-    "Mesmo formato de docs/ultimate_basketball_2019.json, com campos extras: categoria_planilha, team_sugerido (P-22: 30+ -> master, Adulto -> adulto, Kids -> null, aguardando técnico), cestinha_planilha, fonte, observacoes, reb_d/reb_o",
-    "atletas_nos usa o nome como está na planilha (mapear via PLAYER_MAP). Só entram atletas com algum número no boletim"
+    "Mesmo formato de docs/ultimate_basketball_2019.json, com campos extras: categoria_planilha, team_sugerido (P-22: 30+ -> master, Adulto -> adulto, Kids -> blazers, confirmado pelo técnico em 2026-11-17), cestinha_planilha, fonte, observacoes, reb_d/reb_o",
+    "atletas_nos usa o nome como está na planilha (mapear via PLAYER_MAP). Só entram atletas com algum número no boletim",
+    "Datas fictícias reposicionadas em 2026-11-17 a pedido do técnico: Férias Cup em março, Circuito Master em junho, Copa América a partir de setembro (mesma ordem e intervalo semanal). Só o amistoso de 08/02 tem data real."
   ],
   "campeonatos": [
     {
@@ -1340,7 +1341,7 @@
       "categoria_planilha": "Adulto",
       "team_sugerido": "adulto",
       "adversario": "Carneirão",
-      "data": "2020-01-18",
+      "data": "2020-03-07",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -1769,7 +1770,7 @@
       "categoria_planilha": "Adulto",
       "team_sugerido": "adulto",
       "adversario": "Funlec",
-      "data": "2020-01-19",
+      "data": "2020-03-08",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -2198,7 +2199,7 @@
       "categoria_planilha": "Adulto",
       "team_sugerido": "adulto",
       "adversario": "AEF",
-      "data": "2020-01-25",
+      "data": "2020-03-14",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -2530,7 +2531,7 @@
       "categoria_planilha": "30+",
       "team_sugerido": "master",
       "adversario": "Neon",
-      "data": "2020-02-22",
+      "data": "2020-06-06",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -2862,7 +2863,7 @@
       "categoria_planilha": "30+",
       "team_sugerido": "master",
       "adversario": "Highlanders",
-      "data": "2020-02-29",
+      "data": "2020-06-13",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -3251,7 +3252,7 @@
       "categoria_planilha": "30+",
       "team_sugerido": "master",
       "adversario": "Neon",
-      "data": "2020-03-07",
+      "data": "2020-06-20",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -3269,6 +3270,10 @@
         "q4": {
           "nos": 9,
           "adver": 11
+        },
+        "prorrogacao": {
+          "nos": 17,
+          "adver": 9
         }
       },
       "placar_final": {
@@ -3633,14 +3638,15 @@
         "sout_jogos_masculino_linha_adver": 1370
       },
       "observacoes": [
-        "Soma dos quartos (Ultimate 49) não bate com placar final 66; quartos da planilha mantidos como estão"
+        "Soma dos quartos (Ultimate 49) não bate com placar final 66; quartos da planilha mantidos como estão",
+        "Técnico (2026-11-17): o jogo teve prorrogação 17x9; quartos 14x12, 14x19, 12x7, 9x11 (66x58)."
       ]
     },
     {
       "campeonato": "Amistoso avulso 2020",
       "jogo_numero": 1,
       "categoria_planilha": "Kids",
-      "team_sugerido": null,
+      "team_sugerido": "blazers",
       "adversario": "Carneirão",
       "data": "2020-10-03",
       "data_ficticia": true,
@@ -3974,7 +3980,7 @@
       "categoria_planilha": "Adulto",
       "team_sugerido": "adulto",
       "adversario": "Coruja",
-      "data": "2020-10-10",
+      "data": "2020-09-05",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -4380,9 +4386,9 @@
       "campeonato": "Copa América 2020",
       "jogo_numero": 2,
       "categoria_planilha": "Kids",
-      "team_sugerido": null,
+      "team_sugerido": "blazers",
       "adversario": "Cemte Neon",
-      "data": "2020-10-10",
+      "data": "2020-09-05",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -4809,7 +4815,7 @@
       "categoria_planilha": "30+",
       "team_sugerido": "master",
       "adversario": "ABV",
-      "data": "2020-10-11",
+      "data": "2020-09-06",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -5217,7 +5223,7 @@
       "categoria_planilha": "Adulto",
       "team_sugerido": "adulto",
       "adversario": "Cemte",
-      "data": "2020-10-17",
+      "data": "2020-09-12",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -5627,7 +5633,7 @@
       "categoria_planilha": "30+",
       "team_sugerido": "master",
       "adversario": "NTB",
-      "data": "2020-10-18",
+      "data": "2020-09-13",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -5995,9 +6001,9 @@
       "campeonato": "Copa América 2020",
       "jogo_numero": 6,
       "categoria_planilha": "Kids",
-      "team_sugerido": null,
+      "team_sugerido": "blazers",
       "adversario": "North Wolf",
-      "data": "2020-10-24",
+      "data": "2020-09-19",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -6407,7 +6413,7 @@
       "categoria_planilha": "30+",
       "team_sugerido": "master",
       "adversario": "América",
-      "data": "2020-10-25",
+      "data": "2020-09-20",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -6759,9 +6765,9 @@
       "campeonato": "Copa América 2020",
       "jogo_numero": 8,
       "categoria_planilha": "Kids",
-      "team_sugerido": null,
+      "team_sugerido": "blazers",
       "adversario": "NTB",
-      "data": "2020-10-31",
+      "data": "2020-09-26",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -7169,7 +7175,7 @@
       "categoria_planilha": "Adulto",
       "team_sugerido": "adulto",
       "adversario": "América",
-      "data": "2020-11-07",
+      "data": "2020-10-03",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -7579,7 +7585,7 @@
       "categoria_planilha": "Adulto",
       "team_sugerido": "adulto",
       "adversario": "Cemte Neon",
-      "data": "2020-11-14",
+      "data": "2020-10-10",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -7968,7 +7974,7 @@
       "categoria_planilha": "Adulto",
       "team_sugerido": "adulto",
       "adversario": "América",
-      "data": "2020-11-21",
+      "data": "2020-10-17",
       "data_ficticia": true,
       "boletim": {
         "q1": {
@@ -8338,7 +8344,7 @@
       "categoria_planilha": "30+",
       "team_sugerido": "master",
       "adversario": "América",
-      "data": "2020-11-22",
+      "data": "2020-10-18",
       "data_ficticia": true,
       "boletim": {
         "q1": {
