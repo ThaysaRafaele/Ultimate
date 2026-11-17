@@ -1,7 +1,8 @@
 # 0008. Regras dos dados históricos importados (2018, 2019 e 2020)
 
 - Status: aceita (exibição ⚠ em aberto: P-17, P-18; placar de 2020 ⚠ em aberto, ver abaixo)
-- Data: 2026-10-05 (2020 incluído em 2026-11-16)
+- Data: 2026-10-05 (2020 incluído e importado em 2026-11-16: 17 jogos; Kids e nomes ambíguos
+  pendentes em `docs/recados-tecnico.md`)
 - Fontes: cabeçalhos de `scripts/import-games-2018.mjs`, `scripts/import-games-2019.mjs` e
   `scripts/import-games-2020.mjs`, `docs/*.json`
 

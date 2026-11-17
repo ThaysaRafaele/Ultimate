@@ -23,8 +23,11 @@ o item e registre a resposta no `CONTEXT.md` (pendência correspondente) ou numa
 
 ## Importação 2020
 
-Origem: `docs/ultimate_basketball_2020.json` e `scripts/import-games-2020.mjs` (dry-run de
-2026-11-16; nada gravado ainda). 17 jogos entram (8 Adulto, 9 Master); 4 do Kids ficam de fora.
+Origem: `docs/ultimate_basketball_2020.json` e `scripts/import-games-2020.mjs`.
+**Importado em 2026-11-16:** 17 jogos (8 Adulto, 9 Master), 4 campeonatos novos, escalação e
+boletim só dos atletas confirmados (incluindo Paulo, Lebron e Totó). Os 4 jogos do Kids e os
+nomes abaixo ficaram de fora; as pendências desta seção continuam abertas. Quando o técnico
+responder, os atletas entram por um script de atualização (como os rounds de 2019).
 
 ### Para informar
 
